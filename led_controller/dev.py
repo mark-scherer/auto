@@ -30,8 +30,8 @@ def controller_test_1():
 	controller = control.Controller(red_pin, green_pin, blue_pin)
 
 	red_intensity = 0
-	green_intensity = 0.5
-	blue_intensity = 1.0
+	green_intensity = 0.333
+	blue_intensity = 0.666
 	
 	increment = 0.025
 	cycle_length = 0.1 		# seconds ?
