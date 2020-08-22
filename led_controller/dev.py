@@ -35,21 +35,22 @@ def controller_test_1():
 	
 	increment = 0.025
 	cycle_length = 0.1 		# seconds ?
+	max_intensity = 0.5
 
 	while True:
 		red_intensity += increment
 		green_intensity += increment
 		blue_intensity += increment
 
-		if red_intensity > 1.0:
+		if red_intensity > max_intensity:
 			red_intensity = 0
 			print('reset intensity: red')
 
-		if green_intensity > 1.0:
+		if green_intensity > max_intensity:
 			green_intensity = 0
 			print('reset intensity: green')
 
-		if blue_intensity > 1.0:
+		if blue_intensity > max_intensity:
 			blue_intensity = 0
 			print('reset intensity: blue')
 
