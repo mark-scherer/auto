@@ -34,7 +34,7 @@ def controller_test_1():
 	blue_intensity = 1.0
 	
 	increment = 0.1
-	cycle_pause = 0.1 		# seconds ?
+	cycle_length = 0.1 		# seconds ?
 
 	while True:
 		red_intensity += increment
@@ -56,6 +56,8 @@ def controller_test_1():
 		controller.set_pin(controller.red_pin, red_intensity)
 		controller.set_pin(controller.green_pin, green_intensity)
 		controller.set_pin(controller.blue_pin, blue_intensity)
+
+		sleep(cycle_length)
 
 def main():
 	controller_test_1()
