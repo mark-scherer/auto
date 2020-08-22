@@ -30,26 +30,26 @@ def controller_test_1():
 
 	controller = control.Controller(red_pin, green_pin, blue_pin)\
 
-	t = 0
-
 	red_shift = 0
 	green_shift = 2*math.pi / 3
 	blue_shift = 4*math.pi / 3
 	
+	t = 0
 	cycle_length = 0.01
 	period = 3
 
 	while True:
 		t_adjusted = 2 * math.pi * (t / period)
-		red_intensity = 0.5*math.sin(t + red_shift) + 0.5
-		green_intensity = 0.5*math.sin(t + green_shift) + 0.5
-		blue_intensity = 0.5*math.sin(t + blue_shift) + 0.5
+		red_intensity = 0.5*math.sin(t_adjusted + red_shift) + 0.5
+		green_intensity = 0.5*math.sin(t_adjusted + green_shift) + 0.5
+		blue_intensity = 0.5*math.sin(t_adjusted + blue_shift) + 0.5
 
 		controller.set_pin(controller.red_pin, red_intensity)
 		controller.set_pin(controller.green_pin, green_intensity)
 		controller.set_pin(controller.blue_pin, blue_intensity)
 
-		t += 1
+		t += cycle_length
+		print('updated t to {}, t_adjusted: {}'.format(t, t_adjusted))
 		sleep(cycle_length)
 
 def main():
