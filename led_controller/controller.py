@@ -19,7 +19,7 @@ class Controller:
 		update pwm intensity on specified pin (0-1)
 	'''
 	def set_pin(self, pin, value):
-		if value < 0 or > 1:
+		if value < 0 or value > 1:
 			raise ValueError('value out of bounds: {}'.format(value))
 
 		pin.ChangeDutyCycle(value*100)
