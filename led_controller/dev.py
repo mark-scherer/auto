@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep
+import math
 import controller as control
 
 def pwm_test_1():
@@ -27,37 +28,26 @@ def controller_test_1():
 	green_pin = 12
 	blue_pin = 13
 
-	controller = control.Controller(red_pin, green_pin, blue_pin)
+	controller = control.Controller(red_pin, green_pin, blue_pin)\
 
-	red_intensity = 0
-	green_intensity = 0.333
-	blue_intensity = 0.666
+	t = 0
+
+	red_shift = 0
+	green_shift = 2*math.pi / 3
+	blue_shift = 4*math.pi / 3
 	
-	increment = 0.025
 	cycle_length = 0.1 		# seconds ?
-	max_intensity = 0.5
 
 	while True:
-		red_intensity += increment
-		green_intensity += increment
-		blue_intensity += increment
-
-		if red_intensity > max_intensity:
-			red_intensity = 0
-			print('reset intensity: red')
-
-		if green_intensity > max_intensity:
-			green_intensity = 0
-			print('reset intensity: green')
-
-		if blue_intensity > max_intensity:
-			blue_intensity = 0
-			print('reset intensity: blue')
+		red_intensity = 0.5*math.sin(t + red_shift) + 0.5
+		green_intensity = 0.5*math.sin(t + green_shift) + 0.5
+		blue_intensity = 0.5*math.sin(t + blue_shift) + 0.5
 
 		controller.set_pin(controller.red_pin, red_intensity)
 		controller.set_pin(controller.green_pin, green_intensity)
 		controller.set_pin(controller.blue_pin, blue_intensity)
 
+		t += 1
 		sleep(cycle_length)
 
 def main():
