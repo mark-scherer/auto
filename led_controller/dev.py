@@ -33,7 +33,7 @@ def controller_test_1():
 	green_intensity = 0.5
 	blue_intensity = 1.0
 	
-	increment = 0.1
+	increment = 0.025
 	cycle_length = 0.1 		# seconds ?
 
 	while True:

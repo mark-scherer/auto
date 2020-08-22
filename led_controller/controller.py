@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 
 class Controller:
 	def __init__(self, red_pin, green_pin, blue_pin):
+		GPIO.cleanup()
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(red_pin, GPIO.OUT)
 		GPIO.setup(green_pin, GPIO.OUT)
@@ -22,4 +23,5 @@ class Controller:
 		if value < 0 or value > 1:
 			raise ValueError('value out of bounds: {}'.format(value))
 
+		print('setting {} to {}'.format(pin, value))
 		pin.ChangeDutyCycle(value*100)
