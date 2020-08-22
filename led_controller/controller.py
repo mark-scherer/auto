@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 
 class Controller:
 	def __init__(self, red_pin, green_pin, blue_pin):
-		GPIO.cleanup()
+		GPIO.setwarnings(False)
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(red_pin, GPIO.OUT)
 		GPIO.setup(green_pin, GPIO.OUT)
@@ -11,6 +11,10 @@ class Controller:
 		self.red_pin = GPIO.PWM(red_pin, 1000)
 		self.green_pin = GPIO.PWM(green_pin, 1000)
 		self.blue_pin = GPIO.PWM(blue_pin, 1000)
+
+		self.red_pin.start(0)	
+		self.green_pin.start(0)
+		self.blue_pin.start(0)
 
 		self.set_pin(self.red_pin, 0)
 		self.set_pin(self.green_pin, 0)
@@ -23,5 +27,4 @@ class Controller:
 		if value < 0 or value > 1:
 			raise ValueError('value out of bounds: {}'.format(value))
 
-		print('setting {} to {}'.format(pin, value))
 		pin.ChangeDutyCycle(value*100)
