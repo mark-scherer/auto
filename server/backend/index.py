@@ -9,6 +9,7 @@ import controller as control
 port = 8080
 controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
+print('frontend_path: {}'.format(frontend_path))
 
 class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
