@@ -38,7 +38,7 @@ class LEDStripController extends Component {
   	colors[color] = value
 
   	const full_url = `${BASE_URL}/${LED_STRIP_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-  	makeRequest(url)
+  	this.makeRequest(full_url)
   		.then(response => {
   			console.log(`updated colors: ${JSON.stringify({ colors })}`)
   		})
