@@ -17,11 +17,12 @@ class myHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type','text/html')
         self.end_headers()  
 
-        # Send the html message
         file = open(frontend_path, 'rb')
         frontend_content = file.read()
         file.close()
         self.wfile.write(frontend_content)
+
+        print('sent frontend_content: {}'.format(frontend_content.encode('utf-8')))
 
     def do_update_led_strip(self, query_string):
         try:
