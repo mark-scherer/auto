@@ -11,6 +11,8 @@ controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GRE
 frontend_path = 'server/frontend/build'
 
 class myHandler(SimpleHTTPRequestHandler):
+    def __init__(request, client_address, server):
+        super().__init__(request, client_address, server, directory=frontend_path)
 
     def do_base(self):
         self.send_response(200)
