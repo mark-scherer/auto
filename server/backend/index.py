@@ -79,7 +79,7 @@ class myHandler(SimpleHTTPRequestHandler):
         else:
             print('')
             print('responding to request w/ super.do_GET(): {}'.format(self.path))
-            super().do_GET(self)
+            super().do_GET()
 
 
 server = HTTPServer(('', port), myHandler)
