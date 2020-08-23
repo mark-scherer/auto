@@ -30,7 +30,7 @@ class LEDStripController extends Component {
 
     return (
       <div className="LEDStripController">
-      	<div className="colorControls"
+      	<div className="colorControls">
       		<div id="red-control">
       			<Typography gutterBottom>
 	        		Red
