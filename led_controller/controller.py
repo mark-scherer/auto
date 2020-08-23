@@ -1,12 +1,11 @@
 import RPi.GPIO as GPIO
 
 LED_STRIP_RED_PIN = 11
-LED_STRIP_GREEN_PIN = 11
-LED_STRIP_BLUE_PIN = 11
+LED_STRIP_GREEN_PIN = 12
+LED_STRIP_BLUE_PIN = 13
 
 class Controller:
 	def __init__(self, red_pin, green_pin, blue_pin):
-		print('creating controller')
 		GPIO.setwarnings(False)
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(red_pin, GPIO.OUT)
