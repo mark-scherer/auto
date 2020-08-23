@@ -1,5 +1,9 @@
 import RPi.GPIO as GPIO
 
+LED_STRIP_RED_PIN = 11
+LED_STRIP_GREEN_PIN = 11
+LED_STRIP_BLUE_PIN = 11
+
 class Controller:
 	def __init__(self, red_pin, green_pin, blue_pin):
 		GPIO.setwarnings(False)
@@ -28,3 +32,4 @@ class Controller:
 			raise ValueError('value out of bounds: {}'.format(value))
 
 		pin.ChangeDutyCycle(value*100)
+		print('set pin to {}'.format(value))

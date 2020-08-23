@@ -1,9 +1,14 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 from urllib.parse import urlparse
 
+import sys
+sys.path.append('led_controller/')
+import controller as control
+
 port = 8080
 
 class myHandler(BaseHTTPRequestHandler):
+    self.controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 
     def do_base(self):
         self.send_response(200)
@@ -14,15 +19,49 @@ class myHandler(BaseHTTPRequestHandler):
         self.wfile.write("<b> Hello World !</b>".encode("utf-8"))
 
     def do_update_led_strip(self, query_string):
-        query = dict(qc.split("=") for qc in query_string.split("&"))
-        print('got color update query: {}'.format(query))
+        try:
+            query = {}
+            for vp in query_string.split("&"):
+                split_vp = vp.split('=')
+                if len(split_vp) == 0:
+                    raise ValueError('missing key for query param')
+                if len(split_vp) == 1:
+                    raise ValueError('missing value for query param: {}'.format(split_vp[0]))
+                elif len(split_vp) == 2:
+                    query[split_vp[0]] = split_vp[1]
+                else:
+                    raise ValueError('malformed query param: {}'.format(split_vp[0]))
 
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()  
+            print('got color update query: {}'.format(query))
 
-        # Send the html message
-        self.wfile.write("<b> update strip</b>".encode("utf-8"))
+            if 'red' not in query:
+                raise ValueError('missing red param')
+            if 'green' not in query:
+                raise ValueError('missing green param')
+            if 'blue' not in query:
+                raise ValueError('missing blue param')
+
+            try:
+                self.controller.set_pin(self.controller.red_pin, float(query['red']))
+            except Exception as ex:
+                raise ValueError('unsupported red intensity value: {}... {}'.format(query['red'], ex))
+
+            try:
+                self.controller.set_pin(self.controller.green_pin, float(query['green']))
+            except Exception as ex:
+                raise ValueError('unsupported green intensity value: {}... {}'.format(query['green'], ex))
+
+            try:
+                self.controller.set_pin(self.controller.blue_pin, float(query['blue']))
+            except Exception as ex:
+                raise ValueError('unsupported blue intensity value: {}... {}'.format(query['blue'], ex))
+
+            self.send_response(200)
+            self.end_headers() 
+
+        except Exception as ex:
+            self.send_error(400, message="error: {}".format(ex)) 
+
 
     #Handler for the GET requests
     def do_GET(self):
