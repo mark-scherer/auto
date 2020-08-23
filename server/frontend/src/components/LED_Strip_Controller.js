@@ -14,10 +14,12 @@ class LEDStripController extends Component {
   }
 
   updateColor(color, value) {
-  	console.log(`updating color: ${color}, ${value}`)
+  	let stateUpdates = {
+  		colors: {}
+  	}
+  	stateUpdates.colors[color] = value
+  	console.log(JSON.stringify(stateUpdates))
 
-  	let stateUpdates = {}
-  	stateUpdates[color] = value
   	this.setState(stateUpdates)
   }
 
