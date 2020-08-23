@@ -6,6 +6,7 @@ sys.path.append('led_controller/')
 import controller as control
 
 port = 8080
+controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 
 class myHandler(BaseHTTPRequestHandler):
 
@@ -39,8 +40,6 @@ class myHandler(BaseHTTPRequestHandler):
                 raise ValueError('missing green param')
             if 'blue' not in query:
                 raise ValueError('missing blue param')
-
-            controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 
             try:
                 controller.set_pin(controller.red_pin, float(query['red']))
