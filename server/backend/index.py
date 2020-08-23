@@ -74,8 +74,11 @@ class myHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
 
         if parsed.path == '/update_led_strip':
+            print('responding to request: {}'.format(self.path))
             self.do_update_led_strip(parsed.query)
         else:
+            print('')
+            print('responding to request w/ super.do_GET(): {}'.format(self.path))
             super().do_GET(self)
 
 
