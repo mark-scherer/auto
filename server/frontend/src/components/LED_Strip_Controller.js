@@ -1,5 +1,10 @@
 import React, { Component } 					from 'react';
 import { Typography, Slider } 				from '@material-ui/core';
+import _                              from 'lodash';
+import request 												from 'request';
+
+const BASE_URL 										= '192.168.0.194:8080'
+const LED_STRIP_CONTROL_ENDPOINT 	= 'update_led_strip'
 
 class LEDStripController extends Component {
 	constructor(props) {
@@ -13,14 +18,31 @@ class LEDStripController extends Component {
     }
   }
 
-  updateColor(color, value) {
-  	let stateUpdates = {
-  		colors: {}
-  	}
-  	stateUpdates.colors[color] = value
-  	console.log(JSON.stringify(stateUpdates))
+  makeRequest(url) {
+  	console.log(`making request: ${url}`)
+  	return new Promise((resolve, reject) => {
+  		request(url, function (error, response, body) {
+  			if (error) 												return reject(error)
+  			if (response.statusCode !== 200) 	return reject(`bad status code (${response.statusCode}): ${response}`)
 
-  	this.setState(stateUpdates)
+  			return resolve(response)
+			})
+  	})
+  }
+
+  updateColor(color, value) {
+  	const {
+  		colors
+  	} = this.state
+
+  	colors[color] = value
+
+  	const full_url = `${BASE_URL}/${LED_STRIP_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
+  	await makeRequest(url)
+
+  	this.setState({
+  		colors
+  	})
   }
 
   render() {
