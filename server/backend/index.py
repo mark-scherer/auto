@@ -8,8 +8,6 @@ import controller as control
 port = 8080
 
 class myHandler(BaseHTTPRequestHandler):
-    def __init__(self, request, client_address, server):
-        self.controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 
     def do_base(self):
         self.send_response(200)
@@ -42,18 +40,20 @@ class myHandler(BaseHTTPRequestHandler):
             if 'blue' not in query:
                 raise ValueError('missing blue param')
 
+            controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
+
             try:
-                self.controller.set_pin(self.controller.red_pin, float(query['red']))
+                controller.set_pin(controller.red_pin, float(query['red']))
             except Exception as ex:
                 raise ValueError('unsupported red intensity value: {}... {}'.format(query['red'], ex))
 
             try:
-                self.controller.set_pin(self.controller.green_pin, float(query['green']))
+                controller.set_pin(controller.green_pin, float(query['green']))
             except Exception as ex:
                 raise ValueError('unsupported green intensity value: {}... {}'.format(query['green'], ex))
 
             try:
-                self.controller.set_pin(self.controller.blue_pin, float(query['blue']))
+                controller.set_pin(controller.blue_pin, float(query['blue']))
             except Exception as ex:
                 raise ValueError('unsupported blue intensity value: {}... {}'.format(query['blue'], ex))
 
