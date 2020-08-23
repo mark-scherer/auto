@@ -21,7 +21,7 @@ class myHandler(BaseHTTPRequestHandler):
         file = open(frontend_path, 'rb')
         frontend_content = file.read()
         file.close()
-        self.wfile.write(frontend_content.encode("utf-8"))
+        self.wfile.write(frontend_content)
 
     def do_update_led_strip(self, query_string):
         try:
