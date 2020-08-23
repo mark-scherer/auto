@@ -8,7 +8,8 @@ import controller as control
 port = 8080
 
 class myHandler(BaseHTTPRequestHandler):
-    self.controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
+    def __init__(self):
+        self.controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 
     def do_base(self):
         self.send_response(200)
