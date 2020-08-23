@@ -22,7 +22,7 @@ class myHandler(BaseHTTPRequestHandler):
         file.close()
         self.wfile.write(frontend_content)
 
-        print('sent frontend_content: {}'.format(frontend_content.encode('utf-8')))
+        print('sent frontend_content: {}'.format(frontend_content.decode('utf-8')))
 
     def do_update_led_strip(self, query_string):
         try:
