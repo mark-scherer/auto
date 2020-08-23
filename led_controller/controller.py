@@ -20,10 +20,6 @@ class Controller:
 		self.green_pin.start(0)
 		self.blue_pin.start(0)
 
-		self.set_pin(self.red_pin, 0)
-		self.set_pin(self.green_pin, 0)
-		self.set_pin(self.blue_pin, 0)
-
 	'''
 		update pwm intensity on specified pin (0-1)
 	'''
@@ -32,4 +28,3 @@ class Controller:
 			raise ValueError('value out of bounds: {}'.format(value))
 
 		pin.ChangeDutyCycle(value*100)
-		print('set pin to {}'.format(value))
