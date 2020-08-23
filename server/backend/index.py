@@ -77,7 +77,7 @@ class myHandler(SimpleHTTPRequestHandler):
             print('responding to request: {}'.format(self.path))
             self.do_update_led_strip(parsed.query)
         else:
-            self.path = os.path.join(frontend_path, self.path)
+            # self.path = os.path.join(frontend_path, self.path)
             print('responding to request w/ super.do_GET(): {}'.format(self.path))
             super().do_GET()
 
