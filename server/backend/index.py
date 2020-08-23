@@ -10,7 +10,7 @@ port = 8080
 controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
 frontend_path = 'server/frontend/build/index.html'
 
-class myHandler(BaseHTTPRequestHandler):
+class myHandler(SimpleHTTPRequestHandler):
 
     def do_base(self):
         self.send_response(200)
@@ -76,7 +76,7 @@ class myHandler(BaseHTTPRequestHandler):
         if parsed.path == '/update_led_strip':
             self.do_update_led_strip(parsed.query)
         else:
-            self.do_base()
+            super().do_GET(self)
 
 
 server = HTTPServer(('', port), myHandler)
