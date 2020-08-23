@@ -8,7 +8,7 @@ import controller as control
 
 port = 8080
 controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
-frontend_path = 'server/frontend/build/index.html'
+frontend_path = 'server/frontend/build/'
 
 class myHandler(SimpleHTTPRequestHandler):
 
@@ -77,7 +77,7 @@ class myHandler(SimpleHTTPRequestHandler):
             print('responding to request: {}'.format(self.path))
             self.do_update_led_strip(parsed.query)
         else:
-            print('')
+            self.path = frontend_path + self.path
             print('responding to request w/ super.do_GET(): {}'.format(self.path))
             super().do_GET()
 
