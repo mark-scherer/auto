@@ -2,11 +2,13 @@ from http.server import BaseHTTPRequestHandler,HTTPServer
 from urllib.parse import urlparse
 
 import sys
+
 sys.path.append('led_controller/')
 import controller as control
 
 port = 8080
 controller = control.Controller(control.LED_STRIP_RED_PIN, control.LED_STRIP_GREEN_PIN, control.LED_STRIP_BLUE_PIN)
+frontend_path = 'server/frontend/build/index.html'
 
 class myHandler(BaseHTTPRequestHandler):
 
@@ -16,7 +18,10 @@ class myHandler(BaseHTTPRequestHandler):
         self.end_headers()  
 
         # Send the html message
-        self.wfile.write("<b> Hello World !</b>".encode("utf-8"))
+        file = open(frontend_path, 'rb')
+        frontend_content = file.read()
+        file.close()
+        self.wfile.write(frontend_content.encode("utf-8"))
 
     def do_update_led_strip(self, query_string):
         try:
