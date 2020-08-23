@@ -22,13 +22,13 @@ class LEDStripController extends Component {
   }
 
   render() {
-    return (
-      const {
-      	red,
-      	green,
-      	blue
-      } = this.state.colors
+    const {
+    	red,
+    	green,
+    	blue
+    } = this.state.colors
 
+    return (
       <div className="LEDStripController">
       	<div className="colorControls"
       		<div id="red-control">
