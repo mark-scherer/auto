@@ -3,7 +3,7 @@ import { Typography, Slider } 				from '@material-ui/core';
 import _                              from 'lodash';
 import request 												from 'request';
 
-const BASE_URL 										= '192.168.0.194:8080'
+const BASE_URL 										= 'http://192.168.0.194:8080'
 const LED_STRIP_CONTROL_ENDPOINT 	= 'update_led_strip'
 
 class LEDStripController extends Component {
