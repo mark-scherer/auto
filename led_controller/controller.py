@@ -29,4 +29,4 @@ class Controller:
 		if value < 0 or value > 1:
 			raise ValueError('set_pin: value out of bounds: {}'.format(value))
 
-		pin.ChangeDutyCycle(value*100)
+		self.pins[pin_name].ChangeDutyCycle(value*100)

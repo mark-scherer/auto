@@ -23,7 +23,7 @@ class LEDStripController extends Component {
   	return new Promise((resolve, reject) => {
   		request(url, function (error, response, body) {
   			if (error) 												return reject(error)
-  			if (response.statusCode !== 200) 	return reject(`bad status code (${response.statusCode}): ${JSON.stringify(response)}`)
+  			// if (response.statusCode !== 200) 	return reject(`bad status code (${response.statusCode}): ${JSON.stringify(response)}`)
 
   			return resolve(response)
 			})
@@ -39,9 +39,8 @@ class LEDStripController extends Component {
 
   	const full_url = `${BASE_URL}/${LED_STRIP_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
   	this.makeRequest(full_url)
-  		.then(response => {
-  			console.log(`updated colors: ${JSON.stringify({ colors })}`)
-  		})
+  		.then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
+      .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
   	
   	this.setState({
   		colors
