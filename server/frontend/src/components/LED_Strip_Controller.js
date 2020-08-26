@@ -3,9 +3,8 @@ import { Typography, Slider } 				from '@material-ui/core';
 import _                              from 'lodash';
 import request 												from 'request';
 
-const BASE_URL 										= 'http://192.168.0.194:8080'
-const RGB_CONTROL_ENDPOINT 	      = 'update_rgb_strip'
-const WHITE_CONTROL_ENDPOINT      = 'update_white_strip'
+import * as CONFIG                    from '../incl/config'
+import *                              from '../utils/misc'
 
 class StripController extends Component {
   constructor(props) {
@@ -15,17 +14,7 @@ class StripController extends Component {
     }
   }
 
-  makeRequest(url) {
-    console.log(`making request: ${url}`)
-    return new Promise((resolve, reject) => {
-      request(url, function (error, response, body) {
-        if (error)                        return reject(error)
-        // if (response.statusCode !== 200)   return reject(`bad status code (${response.statusCode}): ${JSON.stringify(response)}`)
-
-        return resolve(response)
-      })
-    })
-  }
+  
 
   updateColor(endpoint, color, value) {
     const {
@@ -34,8 +23,8 @@ class StripController extends Component {
 
     colors[color] = value
     
-    const full_url = `${BASE_URL}/${endpoint}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-      this.makeRequest(full_url)
+    const full_url = `${CONFIG.BASE_URL}/${endpoint}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
+      makeRequest(full_url)
         .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
         .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
     
@@ -74,21 +63,21 @@ class RGBStripController extends StripController {
       			<Typography gutterBottom>
 	        		Red
 	      		</Typography>
-	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor(RGB_CONTROL_ENDPOINT, 'red', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'red', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="green-control">
       			<Typography gutterBottom>
 	        		Green
 	      		</Typography>
-	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor(RGB_CONTROL_ENDPOINT, 'green', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'green', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="blue-control">
       			<Typography gutterBottom>
 	        		Blue
 	      		</Typography>
-	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor(RGB_CONTROL_ENDPOINT, 'blue', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'blue', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       	</div>
@@ -122,7 +111,7 @@ class WhiteStripController extends StripController {
             <Typography gutterBottom>
               White
             </Typography>
-            <Slider value={white} onChange={(event, newValue) => { this.updateColor(WHITE_CONTROL_ENDPOINT, 'white', newValue) }} aria-labelledby="continuous-slider" />
+            <Slider value={white} onChange={(event, newValue) => { this.updateColor(CONFIG.WHITE_CONTROL_ENDPOINT, 'white', newValue) }} aria-labelledby="continuous-slider" />
           </div>
         </div>
       </div>
