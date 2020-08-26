@@ -52,7 +52,26 @@ def controller_test_1():
 		print('updated t to {}, t_adjusted: {}'.format(t, t_adjusted))
 		sleep(cycle_length)
 
+def controller_test_2():
+	controller = control.Controller({
+	    'white'       : control.WHITE_STRIP_PIN,
+	})
+
+	t = 0
+	cycle_length = 0.01
+	period = 3
+
+	while True:
+		t_adjusted = 2 * math.pi * (t / period)
+		intensity = 0.5*math.sin(t_adjusted) + 0.5
+
+		controller.set_pin('white', intensity)
+
+		t += cycle_length
+		print('updated t to {}, t_adjusted: {}'.format(t, t_adjusted))
+		sleep(cycle_length)
+
 def main():
-	controller_test_1()
+	controller_test_2()
 
 main()

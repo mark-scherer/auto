@@ -8,9 +8,9 @@ import controller as control
 
 port = 8080
 controller = control.Controller({
-    'red'       : control.LED_STRIP_RED_PIN,
-    'green'     : control.LED_STRIP_GREEN_PIN,
-    'blue'      : control.LED_STRIP_BLUE_PIN
+    'red'       : control.RGB_STRIP_RED_PIN,
+    'green'     : control.RGB_STRIP_GREEN_PIN,
+    'blue'      : control.RGB_STRIP_BLUE_PIN
 })
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
 
