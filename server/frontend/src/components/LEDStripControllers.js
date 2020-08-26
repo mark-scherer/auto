@@ -5,39 +5,21 @@ import _                              from 'lodash';
 import * as CONFIG                    from '../incl/config'
 import * as misc                      from '../utils/misc'
 
-class StripController extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      colors : {}
-    }
-  }
-
-  
-  updateColor(endpoint, color, value) {
-    const {
-      colors
-    } = this.state
-
-    colors[color] = value
-    
-    const full_url = `${CONFIG.BASE_URL}/${endpoint}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-    misc.makeRequest(full_url)
-      .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
-      .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
-    
-    this.setState({
-      colors
-    })
-  }
-}
-
-class RGBStripController extends StripController {
+class RGBStripController extends Component {
 	constructor(props) {
     super(props)
-    this.state = {
-      colors : _.pick(props.currentValues, ['red', 'blue', 'green'])
-    }
+  }
+
+  updateColor(channel, value) {
+    colors = _.pick(this.props.intensityValues, [ 'red', 'green', 'blue' ])
+    colors[channel] = value
+    
+    const full_url = `${CONFIG.BASE_URL}/${CONFIG.RGB_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
+    misc.makeRequest(full_url)
+      .then(response => console.log(`updated rgb colors: ${JSON.stringify({ colors })}`))
+      .catch(error => console.error(`error updating rgb colors: ${JSON.stringify({ colors, error: String(error) })}`))
+    
+    this.props.updateIntensity(channel, value)
   }
 
   render() {
@@ -45,7 +27,7 @@ class RGBStripController extends StripController {
     	red,
     	green,
     	blue
-    } = this.state.colors
+    } = this.props.intensityValues
 
     return (
       <div className="RGBStripController controls">
@@ -57,21 +39,21 @@ class RGBStripController extends StripController {
       			<Typography gutterBottom>
 	        		Red
 	      		</Typography>
-	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'red', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor('red', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="green-control">
       			<Typography gutterBottom>
 	        		Green
 	      		</Typography>
-	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'green', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor('green', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="blue-control">
       			<Typography gutterBottom>
 	        		Blue
 	      		</Typography>
-	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor(CONFIG.RGB_CONTROL_ENDPOINT, 'blue', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor('blue', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       	</div>
@@ -80,18 +62,27 @@ class RGBStripController extends StripController {
   }
 }
 
-class WhiteStripController extends StripController {
+class WhiteStripController extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      colors : _.pick(props.currentValues, [ 'white' ])
-    }
+  }
+
+  updateColor(channel, value) {
+    colors = _.pick(this.props.intensityValues, [ 'white' ])
+    colors[channel] = value
+    
+    const full_url = `${CONFIG.BASE_URL}/${CONFIG.WHITE_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
+    misc.makeRequest(full_url)
+      .then(response => console.log(`updated white colors: ${JSON.stringify({ colors })}`))
+      .catch(error => console.error(`error updating white colors: ${JSON.stringify({ colors, error: String(error) })}`))
+    
+    this.props.updateIntensity(channel, value)
   }
 
   render() {
     const {
       white
-    } = this.state.colors
+    } = this.props.intensityValues
 
     return (
       <div className="WhiteStripController controls">
@@ -103,7 +94,7 @@ class WhiteStripController extends StripController {
             <Typography gutterBottom>
               White
             </Typography>
-            <Slider value={white} onChange={(event, newValue) => { this.updateColor(CONFIG.WHITE_CONTROL_ENDPOINT, 'white', newValue) }} aria-labelledby="continuous-slider" />
+            <Slider value={white} onChange={(event, newValue) => { this.updateColor('white', newValue) }} aria-labelledby="continuous-slider" />
           </div>
         </div>
       </div>

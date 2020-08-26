@@ -1,28 +1,58 @@
-import React, { Component }             from 'react';
+import React, { Component }                         from 'react';
 import './App.css';
 
-import * as CONFIG                            from '../incl/config'
-import * as misc                              from '../utils/misc'
+import * as CONFIG                                  from '../incl/config'
+import * as misc                                    from '../utils/misc'
 
-import { RGBStripController, WhiteStripController } from './components/LED_Strip_Controller';
+import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
 
 class App extends Component {
-  render() {
+  constructor(props) {
+    this.state = {
+      intensityValues : {}
+    }
+  }
+
+  componentDidMount() {
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.CURRENT_VALUES_ENDPOINT}`
     misc.makeRequest(full_url)
       .then(response => {
-        return (
-          <div className="App">
-            <RGBStripController
-              currentValues={response}
-            />
-            <WhiteStripController
-              currentValues={response}
-            />
-          </div>
-        );
+        this.setState({
+          intensityValues : response
+        })
       })
-      .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
+      .catch(error => console.error(`error getting original intensityValues: ${JSON.stringify({ error: String(error) })}`))
+  }
+
+  updateIntensity(channel, newValue) {
+    const {
+      intensityValues
+    } = this.state
+
+    intensityValues[channel] = newValue
+
+    this.setState({
+      intensityValues
+    })
+  }
+
+  render() {
+    const {
+      intensityValues
+    } = this.state
+
+    return (
+      <div className="App">
+        <RGBStripController
+          intensityValues={intensityValues}
+          updateIntensity={updateIntensity}
+        />
+        <WhiteStripController
+          intensityValues={intensityValues}
+          updateIntensity={updateIntensity}
+        />
+      </div>
+    );
   }
 }
 
