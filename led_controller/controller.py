@@ -6,14 +6,14 @@ LED_STRIP_BLUE_PIN = 13
 
 class Controller:
 	'''
-		pin_guide is dict of (pin_name, pin_number) pairs
+		pin_guide: dict of (pin_name, pin_number) pairs
 	'''
 	def __init__(self, pin_guide):
 		GPIO.setwarnings(False)
 		GPIO.setmode(GPIO.BOARD)
 
 		self.pins = {}
-		for pin_name, pin_number value in pin_guide.items():
+		for pin_name, pin_number in pin_guide.items():
 			GPIO.setup(pin_number, GPIO.OUT)
 			self.pins[pin_name] = GPIO.PWM(pin_number, 1000)
 			self.pins[pin_name].start(0)
