@@ -18,12 +18,12 @@ class App extends Component {
 
   componentDidMount() {
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.CURRENT_VALUES_ENDPOINT}`
-    console.log(`componentDidMount: making request to ${full_url}`)
     misc.makeRequest(full_url)
       .then(response => {
         console.log(`componentDidMount: got response: ${JSON.stringify({ response })}`)
+        const original_intensities = 
         this.setState({
-          intensityValues : response
+          intensityValues : _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ])
         })
       })
       .catch(error => console.error(`error getting original intensityValues: ${JSON.stringify({ error: String(error) })}`))
