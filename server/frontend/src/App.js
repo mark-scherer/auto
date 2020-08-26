@@ -21,9 +21,10 @@ class App extends Component {
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.CURRENT_VALUES_ENDPOINT}`
     misc.makeRequest(full_url)
       .then(response => {
-        console.log(`componentDidMount: got response: ${JSON.stringify({ response })}`)
+        const intensityValues = _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ]))
+        console.log(`componentDidMount: got response: ${JSON.stringify({ response, intensityValues })}`)
         this.setState({
-          intensityValues : _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ]))
+          intensityValues
         })
       })
       .catch(error => console.error(`error getting original intensityValues: ${JSON.stringify({ error: String(error) })}`))
