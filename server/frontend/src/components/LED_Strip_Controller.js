@@ -4,7 +4,7 @@ import _                              from 'lodash';
 import request 												from 'request';
 
 import * as CONFIG                    from '../incl/config'
-import *                              from '../utils/misc'
+import * as misc                      from '../utils/misc'
 
 class StripController extends Component {
   constructor(props) {
@@ -15,7 +15,6 @@ class StripController extends Component {
   }
 
   
-
   updateColor(endpoint, color, value) {
     const {
       colors
@@ -24,7 +23,7 @@ class StripController extends Component {
     colors[color] = value
     
     const full_url = `${CONFIG.BASE_URL}/${endpoint}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-      makeRequest(full_url)
+      misc.makeRequest(full_url)
         .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
         .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
     
