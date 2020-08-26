@@ -23,7 +23,7 @@ class App extends Component {
         console.log(`componentDidMount: got response: ${JSON.stringify({ response })}`)
         const original_intensities = 
         this.setState({
-          intensityValues : _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ])
+          intensityValues : _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ]))
         })
       })
       .catch(error => console.error(`error getting original intensityValues: ${JSON.stringify({ error: String(error) })}`))
