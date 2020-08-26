@@ -1,4 +1,5 @@
 import React, { Component }                         from 'react';
+import _                                            from 'lodash';
 import './App.css';
 
 import * as CONFIG                                  from './incl/config'
@@ -21,7 +22,6 @@ class App extends Component {
     misc.makeRequest(full_url)
       .then(response => {
         console.log(`componentDidMount: got response: ${JSON.stringify({ response })}`)
-        const original_intensities = 
         this.setState({
           intensityValues : _.fromPairs(_.map(JSON.parse(response.body), (channel, intensity) => [ channel, intensity*100 ]))
         })
