@@ -38,25 +38,25 @@ class RGBStripController extends Component {
           RGB Strip
         </Typography>
         <div className="colorControls">
-      		<div id="red-control">
+      		<div id="red-control" key={this.props.intensityValues.red}>
       			<Typography gutterBottom>
 	        		Red
 	      		</Typography>
-	      		<Slider value={red} defaultValue={red} onChange={(event, newValue) => { this.updateColor('red', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor('red', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
-      		<div id="green-control">
+      		<div id="green-control" key={this.props.intensityValues.green}>
       			<Typography gutterBottom>
 	        		Green
 	      		</Typography>
-	      		<Slider value={green} defaultValue={green} onChange={(event, newValue) => { this.updateColor('green', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor('green', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
-      		<div id="blue-control">
+      		<div id="blue-control" key={this.props.intensityValues.blue}>
       			<Typography gutterBottom>
 	        		Blue
 	      		</Typography>
-	      		<Slider value={blue} defaultValue={blue} onChange={(event, newValue) => { this.updateColor('blue', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor('blue', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       	</div>
@@ -92,7 +92,7 @@ class WhiteStripController extends Component {
           White Strip
         </Typography>
         <div className="colorControls">
-          <div id="white-control">
+          <div id="white-control" key={this.props.intensityValues.white}>
             <Typography gutterBottom>
               White
             </Typography>
