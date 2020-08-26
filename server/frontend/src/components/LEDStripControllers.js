@@ -36,11 +36,7 @@ class RGBStripController extends StripController {
 	constructor(props) {
     super(props)
     this.state = {
-      colors : {
-      	red 	: 0,
-      	green : 0,
-      	blue 	: 0
-      }
+      colors : _.pick(props.currentValues, ['red', 'blue', 'green'])
     }
   }
 
@@ -88,9 +84,7 @@ class WhiteStripController extends StripController {
   constructor(props) {
     super(props)
     this.state = {
-      colors : {
-        white   : 0
-      }
+      colors : _.pick(props.currentValues, [ 'white' ])
     }
   }
 
