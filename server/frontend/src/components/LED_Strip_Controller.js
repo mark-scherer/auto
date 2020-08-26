@@ -4,7 +4,7 @@ import _                              from 'lodash';
 import request 												from 'request';
 
 const BASE_URL 										= 'http://192.168.0.194:8080'
-const RGB_CONTROL_ENDPOINT 	      = 'update_led_strip'
+const RGB_CONTROL_ENDPOINT 	      = 'update_rgb_strip'
 const WHITE_CONTROL_ENDPOINT      = 'update_white_strip'
 
 class StripController extends Component {
@@ -65,11 +65,11 @@ class RGBStripController extends StripController {
     } = this.state.colors
 
     return (
-      <div className="RGBStripController">
-      	<Typography gutterBottom>
+      <div className="RGBStripController controls">
+      	<Typography variant="h6">
           RGB Strip
         </Typography>
-        <div className="colorControls controls">
+        <div className="colorControls">
       		<div id="red-control">
       			<Typography gutterBottom>
 	        		Red
@@ -113,11 +113,11 @@ class WhiteStripController extends StripController {
     } = this.state.colors
 
     return (
-      <div className="WhiteStripController">
-        <Typography gutterBottom>
+      <div className="WhiteStripController controls">
+        <Typography variant="h6">
           White Strip
         </Typography>
-        <div className="colorControls controls">
+        <div className="colorControls">
           <div id="white-control">
             <Typography gutterBottom>
               White

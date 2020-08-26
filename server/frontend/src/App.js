@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { Component } 						from 'react';
 import './App.css';
 import { RGBStripController, WhiteStripController } from './components/LED_Strip_Controller';
 
