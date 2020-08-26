@@ -64,7 +64,7 @@ class myHandler(SimpleHTTPRequestHandler):
                 print('responding to request w/ super.do_GET(): {}'.format(self.path))
                 super().do_GET()
         except Exception as error:
-            print('excetion handling GET request ({}): {}'.format(self.path, error))
+            print('exception handling GET request ({}): {}'.format(self.path, error))
             self.send_error(400, message="error: {}".format(error)) 
 
 
