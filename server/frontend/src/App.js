@@ -12,6 +12,8 @@ class App extends Component {
     this.state = {
       intensityValues : {}
     }
+
+    this.updateIntensity=this.updateIntensity.bind(this);
   }
 
   componentDidMount() {
