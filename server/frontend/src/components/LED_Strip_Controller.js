@@ -36,15 +36,16 @@ class LEDStripController extends Component {
   	} = this.state
 
   	colors[color] = value
-
-  	const full_url = `${BASE_URL}/${LED_STRIP_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-  	this.makeRequest(full_url)
-  		.then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
-      .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
   	
+    // request in callback to reduce unnecessary back-to-back requests
   	this.setState({
   		colors
-  	})
+  	}, () => {
+      const full_url = `${BASE_URL}/${LED_STRIP_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
+      this.makeRequest(full_url)
+        .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
+        .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
+    })
   }
 
   render() {
