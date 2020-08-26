@@ -1,3 +1,5 @@
+import request                        from 'request';
+
 export function makeRequest(url) {
   return new Promise((resolve, reject) => {
     request(url, function (error, response, body) {

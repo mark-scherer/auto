@@ -1,7 +1,6 @@
 import React, { Component } 					from 'react';
 import { Typography, Slider } 				from '@material-ui/core';
 import _                              from 'lodash';
-import request 												from 'request';
 
 import * as CONFIG                    from '../incl/config'
 import * as misc                      from '../utils/misc'
@@ -23,9 +22,9 @@ class StripController extends Component {
     colors[color] = value
     
     const full_url = `${CONFIG.BASE_URL}/${endpoint}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
-      misc.makeRequest(full_url)
-        .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
-        .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
+    misc.makeRequest(full_url)
+      .then(response => console.log(`updated colors: ${JSON.stringify({ colors })}`))
+      .catch(error => console.error(`error updating colors: ${JSON.stringify({ colors, error: String(error) })}`))
     
     this.setState({
       colors
