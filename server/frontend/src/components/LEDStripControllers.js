@@ -6,12 +6,9 @@ import * as CONFIG                    from '../incl/config'
 import * as misc                      from '../utils/misc'
 
 class RGBStripController extends Component {
-	constructor(props) {
-    super(props)
-  }
 
   updateColor(channel, value) {
-    colors = _.pick(this.props.intensityValues, [ 'red', 'green', 'blue' ])
+    const colors = _.pick(this.props.intensityValues, [ 'red', 'green', 'blue' ])
     colors[channel] = value
     
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.RGB_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
@@ -63,12 +60,9 @@ class RGBStripController extends Component {
 }
 
 class WhiteStripController extends Component {
-  constructor(props) {
-    super(props)
-  }
 
   updateColor(channel, value) {
-    colors = _.pick(this.props.intensityValues, [ 'white' ])
+    const colors = _.pick(this.props.intensityValues, [ 'white' ])
     colors[channel] = value
     
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.WHITE_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
