@@ -10,9 +10,13 @@ port = 8080
 controller = control.Controller({
     'red'       : control.RGB_STRIP_RED_PIN,
     'green'     : control.RGB_STRIP_GREEN_PIN,
-    'blue'      : control.RGB_STRIP_BLUE_PIN
+    'blue'      : control.RGB_STRIP_BLUE_PIN,
+    'white'     : control.WHITE_STRIP_PIN
 })
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
+
+RGB_CONTROL_ENDPOINT        = 'update_rgb_strip'
+WHITE_CONTROL_ENDPOINT      = 'update_white_strip'
 
 class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
@@ -32,8 +36,28 @@ class myHandler(SimpleHTTPRequestHandler):
                 raise ValueError('malformed query param: {}'.format(split_vp[0]))
         return query
 
-    def do_update_led_strip(self, query_string):
+
+    def do_update_rgb_strip(self, query_string):
         led_strip_pins = ['red', 'green', 'blue']
+
+        query = self.parse_query(query_string)
+
+        for pin_name in led_strip_pins:
+            if pin_name not in query:
+                raise ValueError('missing param: {}'.format(pin_name))
+
+        for pin_name in led_strip_pins:
+            try:
+                controller.set_pin(pin_name, float(query[pin_name]))
+            except Exception as error:
+                raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
+
+        self.send_response(200)
+        self.end_headers()
+
+
+    def do_update_white_strip(self, query_string):
+        led_strip_pins = ['white']
 
         query = self.parse_query(query_string)
 
@@ -57,8 +81,10 @@ class myHandler(SimpleHTTPRequestHandler):
         try:
             parsed = urlparse(self.path)
 
-            if parsed.path == '/update_led_strip':
-                self.do_update_led_strip(parsed.query)
+            if parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
+                self.do_update_rgb_strip(parsed.query)
+            elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
+                self.do_update_white_strip(parsed.query)
             else:
                 super().do_GET()
         except Exception as error:
