@@ -2,6 +2,7 @@ from http.server import SimpleHTTPRequestHandler,HTTPServer
 from urllib.parse import urlparse
 import os 
 import sys
+import json
 
 sys.path.append('led_controller/')
 import controller as control
@@ -15,8 +16,9 @@ controller = control.Controller({
 })
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
 
-RGB_CONTROL_ENDPOINT        = 'update_rgb_strip'
-WHITE_CONTROL_ENDPOINT      = 'update_white_strip'
+RGB_CONTROL_ENDPOINT            = 'update_rgb_strip'
+WHITE_CONTROL_ENDPOINT          = 'update_white_strip'
+CURRENT_VALUES_ENDPOINT         = 'get_current_values'
 
 class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
@@ -35,6 +37,14 @@ class myHandler(SimpleHTTPRequestHandler):
             else:
                 raise ValueError('malformed query param: {}'.format(split_vp[0]))
         return query
+
+
+    def do_get_current_values(self):
+        response = json.dumps(controller.get_pin_values())
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
 
 
     def do_update_rgb_strip(self, query_string):
@@ -81,7 +91,9 @@ class myHandler(SimpleHTTPRequestHandler):
         try:
             parsed = urlparse(self.path)
 
-            if parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
+            if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
+                self.do_get_current_values()
+            elif parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
                 self.do_update_rgb_strip(parsed.query)
             elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
                 self.do_update_white_strip(parsed.query)
