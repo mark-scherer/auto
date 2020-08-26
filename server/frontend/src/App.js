@@ -18,8 +18,10 @@ class App extends Component {
 
   componentDidMount() {
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.CURRENT_VALUES_ENDPOINT}`
+    console.log(`componentDidMount: making request to ${full_url}`)
     misc.makeRequest(full_url)
       .then(response => {
+        console.log(`componentDidMount: got response: ${JSON.stringify({ response })}`)
         this.setState({
           intensityValues : response
         })

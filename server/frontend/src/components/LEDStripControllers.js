@@ -8,7 +8,11 @@ import * as misc                      from '../utils/misc'
 class RGBStripController extends Component {
 
   updateColor(channel, value) {
-    const colors = _.pick(this.props.intensityValues, [ 'red', 'green', 'blue' ])
+    const colors = {
+      red     : this.props.intensityValues.red    || 0,
+      green   : this.props.intensityValues.green  || 0,
+      blue    : this.props.intensityValues.blue   || 0,
+    }
     colors[channel] = value
     
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.RGB_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
@@ -62,7 +66,9 @@ class RGBStripController extends Component {
 class WhiteStripController extends Component {
 
   updateColor(channel, value) {
-    const colors = _.pick(this.props.intensityValues, [ 'white' ])
+    const colors = {
+      white     : this.props.intensityValues.white  || 0
+    }
     colors[channel] = value
     
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.WHITE_CONTROL_ENDPOINT}?${_.map(colors, (value, color) => `${color}=${value/100}`).join('&')}`
