@@ -18,7 +18,7 @@ class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server, directory=frontend_path)
 
-    def parse_query(query_string):
+    def parse_query(self, query_string):
         query = {}
         for vp in query_string.split("&"):
             split_vp = vp.split('=')
