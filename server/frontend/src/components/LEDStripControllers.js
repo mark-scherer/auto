@@ -42,21 +42,21 @@ class RGBStripController extends Component {
       			<Typography gutterBottom>
 	        		Red
 	      		</Typography>
-	      		<Slider value={red} onChange={(event, newValue) => { this.updateColor('red', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={red} defaultValue={red} onChange={(event, newValue) => { this.updateColor('red', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="green-control">
       			<Typography gutterBottom>
 	        		Green
 	      		</Typography>
-	      		<Slider value={green} onChange={(event, newValue) => { this.updateColor('green', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={green} defaultValue={green} onChange={(event, newValue) => { this.updateColor('green', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       		<div id="blue-control">
       			<Typography gutterBottom>
 	        		Blue
 	      		</Typography>
-	      		<Slider value={blue} onChange={(event, newValue) => { this.updateColor('blue', newValue) }} aria-labelledby="continuous-slider" />
+	      		<Slider value={blue} defaultValue={blue} onChange={(event, newValue) => { this.updateColor('blue', newValue) }} aria-labelledby="continuous-slider" />
       		</div>
 
       	</div>
