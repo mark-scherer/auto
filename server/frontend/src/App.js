@@ -1,8 +1,8 @@
 import React, { Component }                         from 'react';
 import './App.css';
 
-import * as CONFIG                                  from 'incl/config'
-import * as misc                                    from 'utils/misc'
+import * as CONFIG                                  from './incl/config'
+import * as misc                                    from './utils/misc'
 
 import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
 
