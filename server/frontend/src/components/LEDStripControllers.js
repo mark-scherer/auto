@@ -30,6 +30,8 @@ class RGBStripController extends Component {
     	blue
     } = this.props.intensityValues
 
+    console.log(`rgb controller, got this.props.intensityValues: ${JSON.stringify({ this.props.intensityValues })}`)
+
     return (
       <div className="RGBStripController controls">
       	<Typography variant="h6">
