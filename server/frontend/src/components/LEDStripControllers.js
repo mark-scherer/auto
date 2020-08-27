@@ -16,6 +16,21 @@ class StripController extends Component {
     }
   }
 
+  componentDidMount() {
+    const {
+      intensities
+    } = this.state
+
+    this.props.getInitialIntensities()
+      .then(result => {
+        const initialIntensities = _.pick(result, Object.keys(intensities))
+        console.log(`${this.label}: got initial intensities: ${JSON.stringify({ initialIntensities })}`)
+        this.setState({
+          intensities   : initialIntensities
+        })
+      })
+  }
+
   updateIntensity(channel, value) {
     const {
       intensities,
@@ -25,7 +40,7 @@ class StripController extends Component {
 
     const full_url = `${CONFIG.BASE_URL}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
     misc.makeRequest(full_url)
-      .then(response => console.log(`updated ${this.label} intensities: ${JSON.stringify({ intensities })}`))
+      // .then(response => console.log(`updated ${this.label} intensities: ${JSON.stringify({ intensities })}`))
       .catch(error => console.error(`error updating ${this.label} intensities: ${JSON.stringify({ intensities, error: String(error) })}`))
 
     this.setState({
@@ -37,8 +52,6 @@ class StripController extends Component {
     const {
       intensities
     } = this.state
-
-    console.log(`StripController: running render: ${JSON.stringify({ label: this.label, intensities })}`)
 
     return (
       <div className="controls">
