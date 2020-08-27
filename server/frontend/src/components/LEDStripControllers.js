@@ -8,11 +8,12 @@ import * as misc                      from '../utils/misc'
 class StripController extends Component {
   label     = 'strip'
   endpoint  = null
+  channels  = []
 
   constructor(props) {
     super(props)
     this.state = {
-      intensities : {},
+      intensities : _.fromPairs(_.map(this.channels), channel => [ channel, 0 ])
     }
   }
 
@@ -22,7 +23,9 @@ class StripController extends Component {
     } = this.state
 
     _.forEach(intensities, (value, channel) => {
-      if (this.props.initialIntensities[channel] && this.props.initialIntensities[channel] !== prevProps.initialIntensities[channel]) {
+      if (this.props.initialIntensities[channel] && 
+          this.props.initialIntensities[channel] !== prevProps.initialIntensities[channel] &&
+          this.props.initialIntensities[channel] !== value) {
         this.updateIntensity(channel, this.props.initialIntensities[channel])
       }
     })
@@ -73,31 +76,13 @@ class StripController extends Component {
 class RGBStripController extends StripController {
   label     = 'rgb strip'
   endpoint  = CONFIG.RGB_CONTROL_ENDPOINT
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      intensities : {
-        red         : 0,
-        green       : 0,
-        blue        : 0
-      }
-    }
-  }
+  channels  = [ 'red', 'green', 'blue' ]
 }
 
 class WhiteStripController extends StripController {
   label     = 'white strip'
   endpoint  = CONFIG.WHITE_CONTROL_ENDPOINT
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      intensities : {
-        white       : 0,
-      }
-    }
-  }
+  channels  = [ 'white' ]
 }
 
 export  { RGBStripController, WhiteStripController };
