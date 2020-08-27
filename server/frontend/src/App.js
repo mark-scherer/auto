@@ -8,40 +8,6 @@ import * as misc                                    from './utils/misc'
 import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
 
 class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      intensityValues : {}
-    }
-
-    this.updateIntensity=this.updateIntensity.bind(this);
-  }
-
-  componentDidMount() {
-    const full_url = `${CONFIG.BASE_URL}/${CONFIG.CURRENT_VALUES_ENDPOINT}`
-    misc.makeRequest(full_url)
-      .then(response => {
-        const intensityValues = _.fromPairs(_.map(JSON.parse(response.body), (intensity, channel) => [ channel, intensity*100 ]))
-        console.log(`componentDidMount: got response: ${JSON.stringify({ response, intensityValues })}`)
-        this.setState({
-          intensityValues
-        })
-      })
-      .catch(error => console.error(`error getting original intensityValues: ${JSON.stringify({ error: String(error) })}`))
-  }
-
-  updateIntensity(channel, newValue) {
-    const {
-      intensityValues
-    } = this.state
-
-    intensityValues[channel] = newValue
-
-    this.setState({
-      intensityValues
-    })
-  }
-
   render() {
     const {
       intensityValues
@@ -49,14 +15,8 @@ class App extends Component {
 
     return (
       <div className="App">
-        <RGBStripController
-          intensityValues={intensityValues}
-          updateIntensity={this.updateIntensity}
-        />
-        <WhiteStripController
-          intensityValues={intensityValues}
-          updateIntensity={this.updateIntensity}
-        />
+        <RGBStripController/>
+        <WhiteStripController/>
       </div>
     );
   }
