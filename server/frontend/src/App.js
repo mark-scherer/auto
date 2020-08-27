@@ -10,37 +10,37 @@ import { RGBStripController, WhiteStripController } from './components/LEDStripC
 class App extends Component {
   constructor(props) {
     super(props)
+
     this.state = {
-      initialIntensities   : null
+      initialIntensities   : {}
     }
   }
 
-  getInitialIntensities() {
+  componentDidMount() {
+    const full_url = `${CONFIG.BASE_URL}/${CONFIG.INITIAL_INTENSITIES_ENDPOINT}`
+    misc.makeRequest(full_url)
+      .then(response => {
+        const initialIntensities = JSON.parse(response.body)
+        console.log(`App: got initial intensities : ${JSON.stringify({ intensities })}`)
+        this.setState({
+          initialIntensities
+        })
+      })
+      .catch(error => console.error(`App: error getting initial intensities: ${JSON.stringify({ error: String(error) })}`))
+  }
+
+  render() {
     const {
       initialIntensities
     } = this.state
 
-    if (initialIntensities) return initialIntensities
-    else {
-      const full_url = `${CONFIG.BASE_URL}/${CONFIG.INITIAL_INTENSITIES_ENDPOINT}`
-      misc.makeRequest(full_url)
-        .then(response => {
-          const intensities = JSON.parse(response.body)
-          console.log(`got initial intensities : ${JSON.stringify({ intensities })}`)
-          return intensities
-        })
-        .catch(error => console.error(`error getting current values: ${JSON.stringify({ error: String(error) })}`))
-    }
-  }
-
-  render() {
     return (
       <div className="App">
         <RGBStripController
-          getInitialIntensities={this.getInitialIntensities}
+          initialIntensities={initialIntensities}
         />
         <WhiteStripController
-          getInitialIntensities={this.getInitialIntensities}
+          initialIntensities={initialIntensities}
         />
       </div>
     );

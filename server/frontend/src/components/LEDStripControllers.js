@@ -16,19 +16,18 @@ class StripController extends Component {
     }
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps) {
     const {
       intensities
     } = this.state
 
-    this.props.getInitialIntensities()
-      .then(result => {
-        const initialIntensities = _.pick(result, Object.keys(intensities))
-        console.log(`${this.label}: got initial intensities: ${JSON.stringify({ initialIntensities })}`)
-        this.setState({
-          intensities   : initialIntensities
-        })
-      })
+    console.log(`${this.label}: componentDidUpdate: ${JSON.stringify({ props: this.props, prevProps })}`)
+    _.forEach(intensities, (value, channel) => {
+      if (this.props.initialIntensities[channel] && this.props.initialIntensities[channel] !== prevProps.initialIntensities[channel]) {
+        console.log(`${this.label}: componentDidUpdate: updating channel: ${channel}`)
+        this.updateIntensity(channel, this.props.initialIntensities[channel])
+      }
+    })
   }
 
   updateIntensity(channel, value) {
