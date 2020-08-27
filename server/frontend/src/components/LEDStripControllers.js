@@ -23,6 +23,7 @@ class StripController extends Component {
       intensities
     } = this.state
 
+    console.log(`${this.label}: componentDidUpdate: ${JSON.stringify({ props: this.props, prevProps })}`)
     _.forEach(intensities, (value, channel) => {
       if (this.props.initialIntensities[channel] && 
           this.props.initialIntensities[channel] !== prevProps.initialIntensities[channel] &&
