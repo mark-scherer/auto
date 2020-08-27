@@ -21,7 +21,7 @@ class App extends Component {
     misc.makeRequest(full_url)
       .then(response => {
         const initialIntensities = JSON.parse(response.body)
-        console.log(`App: got initial intensities : ${JSON.stringify({ intensities })}`)
+        console.log(`App: got initial intensities : ${JSON.stringify({ initialIntensities })}`)
         this.setState({
           initialIntensities
         })
