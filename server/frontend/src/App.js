@@ -20,7 +20,7 @@ class App extends Component {
     const full_url = `${CONFIG.BASE_URL}/${CONFIG.INITIAL_INTENSITIES_ENDPOINT}`
     misc.makeRequest(full_url)
       .then(response => {
-        const initialIntensities = JSON.parse(response.body)
+        const initialIntensities = _.fromPairs(_.map(JSON.parse(response.body), (value, channel) => [ channel, value*100 ]))
         console.log(`App: got initial intensities : ${JSON.stringify({ initialIntensities })}`)
         this.setState({
           initialIntensities
