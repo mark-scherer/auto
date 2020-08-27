@@ -37,6 +37,8 @@ class StripController extends Component {
       intensities
     } = this.state
 
+    console.log(`StripController: running render on intensities: ${JSON.stringify({ intensities })}`)
+
     return (
       <div className="controls">
         <Typography variant="h6">{self.label}</Typography>
