@@ -8,13 +8,12 @@ import * as misc                      from '../utils/misc'
 class StripController extends Component {
   label     = 'strip'
   endpoint  = null
-  channels  = []
+
 
   constructor(props) {
     super(props)
-    console.log(`${self.label} constructor, creating intensities: ${JSON.stringify({ channel: this.channels })}`)
     this.state = {
-      intensities : _.fromPairs(_.map(this.channels), channel => [ channel, 0 ])
+      intensities : {},
     }
   }
 
@@ -78,13 +77,31 @@ class StripController extends Component {
 class RGBStripController extends StripController {
   label     = 'rgb strip'
   endpoint  = CONFIG.RGB_CONTROL_ENDPOINT
-  channels  = [ 'red', 'green', 'blue' ]
+  
+  constructor(props) {
+    super(props)
+    this.state = {
+      intensities : {
+        red         : 0,
+        green       : 0,
+        blue        : 0
+      }
+    }
+  }
 }
 
 class WhiteStripController extends StripController {
   label     = 'white strip'
   endpoint  = CONFIG.WHITE_CONTROL_ENDPOINT
-  channels  = [ 'white' ]
+  
+  constructor(props) {
+    super(props)
+    this.state = {
+      intensities : {
+        white       : 0,
+      }
+    }
+  }
 }
 
 export  { RGBStripController, WhiteStripController };
