@@ -12,6 +12,7 @@ class StripController extends Component {
 
   constructor(props) {
     super(props)
+    console.log(`${self.label} constructor, creating intensities: ${JSON.stringify({ channel: this.channels })}`)
     this.state = {
       intensities : _.fromPairs(_.map(this.channels), channel => [ channel, 0 ])
     }
