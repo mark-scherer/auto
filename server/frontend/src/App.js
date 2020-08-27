@@ -9,10 +9,6 @@ import { RGBStripController, WhiteStripController } from './components/LEDStripC
 
 class App extends Component {
   render() {
-    const {
-      intensityValues
-    } = this.state
-
     return (
       <div className="App">
         <RGBStripController/>
