@@ -6,26 +6,27 @@ import * as CONFIG                    from '../incl/config'
 import * as misc                      from '../utils/misc'
 
 class StripController extends Component {
+  label     = 'strip'
+  endpoint  = null
+
   constructor(props) {
     super(props)
     this.state = {
-      label       : 'strip',
       intensities : {},
-      endpoint    : null
     }
   }
 
   updateIntensity(channel, value) {
     const {
-      intensities
+      intensities,
     } = this.state
 
     intensities[channel] = value
 
-    const full_url = `${CONFIG.BASE_URL}/${self.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
+    const full_url = `${CONFIG.BASE_URL}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
     misc.makeRequest(full_url)
-      .then(response => console.log(`updated ${self.label} intensities: ${JSON.stringify({ intensities })}`))
-      .catch(error => console.error(`error updating ${self.label} intensities: ${JSON.stringify({ intensities, error: String(error) })}`))
+      .then(response => console.log(`updated ${this.label} intensities: ${JSON.stringify({ intensities })}`))
+      .catch(error => console.error(`error updating ${this.label} intensities: ${JSON.stringify({ intensities, error: String(error) })}`))
 
     this.setState({
       intensities
@@ -37,14 +38,14 @@ class StripController extends Component {
       intensities
     } = this.state
 
-    console.log(`StripController: running render on intensities: ${JSON.stringify({ intensities })}`)
+    console.log(`StripController: running render: ${JSON.stringify({ label: this.label, intensities })}`)
 
     return (
       <div className="controls">
-        <Typography variant="h6">{self.label}</Typography>
+        <Typography variant="h6">{this.label}</Typography>
         <div className="colorControls">
           {
-            _.map(self.intensities, (intensity, channel) => {
+            _.map(intensities, (intensity, channel) => {
               return (
                 <div id="red-control">
                   <Typography gutterBottom>{channel}</Typography>
@@ -60,29 +61,31 @@ class StripController extends Component {
 }
 
 class RGBStripController extends StripController {
+  label     = 'rgb strip'
+  endpoint  = CONFIG.RGB_CONTROL_ENDPOINT
+
   constructor(props) {
     super(props)
     this.state = {
-      label       : 'rgb strip',
       intensities : {
         red         : 0,
         green       : 0,
         blue        : 0
-      },
-      endpoint    : CONFIG.RGB_CONTROL_ENDPOINT
+      }
     }
   }
 }
 
 class WhiteStripController extends StripController {
+  label     = 'white strip'
+  endpoint  = CONFIG.WHITE_CONTROL_ENDPOINT
+
   constructor(props) {
     super(props)
     this.state = {
-      label       : 'white strip',
       intensities : {
         white       : 0,
-      },
-      endpoint    : CONFIG.WHITE_CONTROL_ENDPOINT
+      }
     }
   }
 }
