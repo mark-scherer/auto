@@ -5,7 +5,7 @@ RGB_STRIP_GREEN_PIN = 12
 RGB_STRIP_BLUE_PIN 	= 13
 WHITE_STRIP_PIN 	= 15
 
-class Controller:
+class PinController:
 	'''
 		pin_guide: dict of (pin_name, pin_number) pairs
 	'''

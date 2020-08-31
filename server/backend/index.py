@@ -4,11 +4,11 @@ import os
 import sys
 import json
 
-sys.path.append('controller/')
-import controller as control
+sys.path.append('controllers/')
+import pinController as pinControl
 
 port = 8080
-controller = control.Controller({
+pinController = pinControl.PinController({
     'red'       : control.RGB_STRIP_RED_PIN,
     'green'     : control.RGB_STRIP_GREEN_PIN,
     'blue'      : control.RGB_STRIP_BLUE_PIN,
@@ -42,7 +42,7 @@ class myHandler(SimpleHTTPRequestHandler):
         return query
 
     def do_get_current_values(self):
-        response = json.dumps(controller.get_pin_values())
+        response = json.dumps(pinController.get_pin_values())
 
         self.send_response(200)
         self.end_headers()
@@ -57,7 +57,7 @@ class myHandler(SimpleHTTPRequestHandler):
 
         for pin_name in strip_pins:
             try:
-                controller.set_pin(pin_name, float(query[pin_name]))
+                pinController.set_pin(pin_name, float(query[pin_name]))
             except Exception as error:
                 raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
 
