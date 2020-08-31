@@ -9,10 +9,10 @@ import pinController as pinControl
 
 port = 8080
 pinController = pinControl.PinController({
-    'red'       : control.RGB_STRIP_RED_PIN,
-    'green'     : control.RGB_STRIP_GREEN_PIN,
-    'blue'      : control.RGB_STRIP_BLUE_PIN,
-    'white'     : control.WHITE_STRIP_PIN
+    'red'       : pinControl.RGB_STRIP_RED_PIN,
+    'green'     : pinControl.RGB_STRIP_GREEN_PIN,
+    'blue'      : pinControl.RGB_STRIP_BLUE_PIN,
+    'white'     : pinControl.WHITE_STRIP_PIN
 })
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
 
