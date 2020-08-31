@@ -41,7 +41,6 @@ class myHandler(SimpleHTTPRequestHandler):
                 raise ValueError('malformed query param: {}'.format(split_vp[0]))
         return query
 
-
     def do_get_current_values(self):
         response = json.dumps(controller.get_pin_values())
 
@@ -63,47 +62,7 @@ class myHandler(SimpleHTTPRequestHandler):
                 raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
 
         self.send_response(200)
-        self.end_headers()
-
-
-    # def do_update_rgb_strip(self, query_string):
-    #     led_strip_pins = ['red', 'green', 'blue']
-
-    #     query = self.parse_query(query_string)
-
-    #     for pin_name in led_strip_pins:
-    #         if pin_name not in query:
-    #             raise ValueError('missing param: {}'.format(pin_name))
-
-    #     for pin_name in led_strip_pins:
-    #         try:
-    #             controller.set_pin(pin_name, float(query[pin_name]))
-    #         except Exception as error:
-    #             raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
-
-    #     self.send_response(200)
-    #     self.end_headers()
-
-
-    # def do_update_white_strip(self, query_string):
-    #     led_strip_pins = ['white']
-
-    #     query = self.parse_query(query_string)
-
-    #     for pin_name in led_strip_pins:
-    #         if pin_name not in query:
-    #             raise ValueError('missing param: {}'.format(pin_name))
-
-    #     for pin_name in led_strip_pins:
-    #         try:
-    #             controller.set_pin(pin_name, float(query[pin_name]))
-    #         except Exception as error:
-    #             raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
-
-    #     self.send_response(200)
-    #     self.end_headers()
-            
-
+        self.end_headers()            
 
     #Handler for the GET requests
     def do_GET(self):
@@ -113,10 +72,8 @@ class myHandler(SimpleHTTPRequestHandler):
             if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
                 self.do_get_current_values()
             elif parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
-                # self.do_update_rgb_strip(parsed.query)
                 self.do_update_strip(parsed.query, RGB_PINS)
             elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
-                # self.do_update_white_strip(parsed.query)
                 self.do_update_strip(parsed.query, WHITE_PINS)
             else:
                 super().do_GET()
