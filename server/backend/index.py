@@ -1,5 +1,5 @@
 from http.server import SimpleHTTPRequestHandler,HTTPServer
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import os 
 import sys
 import json
@@ -88,8 +88,9 @@ class myHandler(SimpleHTTPRequestHandler):
     #Handler for the GET requests
     def do_GET(self):
         try:
-            parsed = urlparse(self.path)
+            parsed = urlparse(unquote(self.path))
             query = self.parseQuery(parsed.query)
+            print('parsed query: {}'.format(query))
 
             # get current values
             if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
