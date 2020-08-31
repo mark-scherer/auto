@@ -64,7 +64,7 @@ class myHandler(SimpleHTTPRequestHandler):
         if 'datetime' not in query:
             raise ValueError('missing param: {}'.format('datetime'))
         
-        scheduler.addEvent(eventName, query['datetime'], eventFunc, eventFuncArgs)
+        scheduler.addEvent(eventName, query['datetime'][0], eventFunc, eventFuncArgs)
         print('scheduled {} for {}'.format(eventName, query['datetime']))
 
         self.send_response(200)
@@ -74,7 +74,7 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
             parsed = urlparse(unquote(self.path))
-            query = parse_qs(parsed.query)
+            query = parse_qs(parsed.query, strict_parsing=True)
             print('parsed query: {}'.format(query))
 
             # misc
@@ -91,7 +91,7 @@ class myHandler(SimpleHTTPRequestHandler):
             elif parsed.path == '/{}'.format(SCHEDULE_SUNRISE_ENDPOINT):
                 if 'duration' not in query:
                     raise ValueError('missing param: {}'.format('duration'))
-                self.do_scheduleEvent('sunrise_alarm', query, sunrise.sunriseAlarm, [ float(query['duration']), pinController ])
+                self.do_scheduleEvent('sunrise_alarm', query, sunrise.sunriseAlarm, [ float(query['duration'][0]), pinController ])
 
             # default
             else:
