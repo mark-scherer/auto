@@ -74,7 +74,7 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
             parsed = urlparse(unquote(self.path))
-            query = parse_qs(parsed.query, strict_parsing=True)
+            query = parse_qs(parsed.query)
             print('parsed query: {}'.format(query))
 
             # misc
