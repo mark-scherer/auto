@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from time import sleep
 import math
+import sys
 # import controller as control
 import pinController as pinControl
 

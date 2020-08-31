@@ -1,3 +1,4 @@
+from time import sleep
 
 # constants
 timestep 	= 100 		# ms
