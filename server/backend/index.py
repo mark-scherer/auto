@@ -36,21 +36,7 @@ scheduler       = schedule.Scheduler()
 
 class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server, directory=frontend_path)
-
-    def parseQuery(self, queryString):
-        # query = {}
-
-        # for vp in queryString.split("&"):
-        #     splitVP = vp.split('=')
-        #     if len(splitVP) == 1:
-        #         raise ValueError('missing value for query param: {}'.format(splitVP[0]))
-        #     elif len(splitVP) == 2:
-        #         query[splitVP[0]] = splitVP[1]
-        #     else:
-        #         raise ValueError('malformed query param: {}'.format(splitVP[0]))
-        # return query
-        return parse_qs(queryString)
+        super().__init__(request, client_address, server, directory=frontend_path)        
 
     def do_getCurrentValues(self):
         response = json.dumps(pinController.getPinValues())
@@ -61,14 +47,13 @@ class myHandler(SimpleHTTPRequestHandler):
 
     def do_updatePins(self, query, stripPins):
         
-
         for pin_name in stripPins:
             if pin_name not in query:
                 raise ValueError('missing param: {}'.format(pin_name))
 
         for pin_name in stripPins:
             try:
-                pinController.setPin(pin_name, float(query[pin_name]))
+                pinController.setPin(pin_name, float(query[pin_name][0]))
             except Exception as error:
                 raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
 
@@ -89,7 +74,7 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         try:
             parsed = urlparse(unquote(self.path))
-            query = self.parseQuery(parsed.query)
+            query = parse_qs(queryString)
             print('parsed query: {}'.format(query))
 
             # misc
