@@ -1,5 +1,5 @@
 from http.server import SimpleHTTPRequestHandler,HTTPServer
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 import os 
 import sys
 import json
@@ -39,18 +39,18 @@ class myHandler(SimpleHTTPRequestHandler):
         super().__init__(request, client_address, server, directory=frontend_path)
 
     def parseQuery(self, queryString):
-        query = {}
-        for vp in queryString.split("&"):
-            splitVP = vp.split('=')
-            if len(splitVP) == 0:
-                raise ValueError('missing key for query param')
-            if len(splitVP) == 1:
-                raise ValueError('missing value for query param: {}'.format(splitVP[0]))
-            elif len(splitVP) == 2:
-                query[splitVP[0]] = splitVP[1]
-            else:
-                raise ValueError('malformed query param: {}'.format(splitVP[0]))
-        return query
+        # query = {}
+
+        # for vp in queryString.split("&"):
+        #     splitVP = vp.split('=')
+        #     if len(splitVP) == 1:
+        #         raise ValueError('missing value for query param: {}'.format(splitVP[0]))
+        #     elif len(splitVP) == 2:
+        #         query[splitVP[0]] = splitVP[1]
+        #     else:
+        #         raise ValueError('malformed query param: {}'.format(splitVP[0]))
+        # return query
+        return parse_qs(queryString)
 
     def do_getCurrentValues(self):
         response = json.dumps(pinController.getPinValues())
@@ -92,17 +92,17 @@ class myHandler(SimpleHTTPRequestHandler):
             query = self.parseQuery(parsed.query)
             print('parsed query: {}'.format(query))
 
-            # get current values
+            # misc
             if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
                 self.do_getCurrentValues()
 
-            # update pins
+            # direct controls
             elif parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
                 self.do_updatePins(parsed.query, RGB_PINS)
             elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
                 self.do_updatePins(parsed.query, WHITE_PINS)
             
-            # event schedules
+            # event schedulers
             elif parsed.path == '/{}'.format(SCHEDULE_SUNRISE_ENDPOINT):
                 if 'duration' not in query:
                     raise ValueError('missing param: {}'.format('duration'))
