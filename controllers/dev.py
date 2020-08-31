@@ -5,7 +5,7 @@ import sys
 # import controller as control
 import pinController as pinControl
 
-sys.path.append('scripts/')
+sys.path.append('controllers/scripts/')
 import sunriseAlarm as sunrise
 
 
