@@ -22,19 +22,19 @@ class PinController:
 			self.current_values[pin_name] = 0
 
 
-	def get_pin_values(self):
+	def getPinValues(self):
 		return self.current_values
 		
 
 	'''
 		update pwm intensity on specified pin (0-1)
 	'''
-	def set_pin(self, pin_name, value):
+	def setPin(self, pin_name, value):
 		if pin_name not in self.pins:
-			raise ValueError('set_pin: invalid pin_name: {}'.format(pin_name))
+			raise ValueError('setPin: invalid pin_name: {}'.format(pin_name))
 
 		if value < 0 or value > 1:
-			raise ValueError('set_pin: value out of bounds: {}'.format(value))
+			raise ValueError('setPin: value out of bounds: {}'.format(value))
 
 		self.pins[pin_name].ChangeDutyCycle(value*100)
 		self.current_values[pin_name] = value

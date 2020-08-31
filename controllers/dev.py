@@ -1,7 +1,12 @@
 import RPi.GPIO as GPIO
 from time import sleep
 import math
-import controller as control
+# import controller as control
+import pinController as pinControl
+
+sys.path.append('scripts/')
+import sunriseAlarm as sunrise
+
 
 def pwm_test_1():
 	ledpin = 12				# PWM pin connected to LED
@@ -71,7 +76,20 @@ def controller_test_2():
 		print('updated t to {}, t_adjusted: {}'.format(t, t_adjusted))
 		sleep(cycle_length)
 
+def sunriseTest1():
+	duration = 10
+
+	pinController   = pinControl.PinController({
+	    'red'       : pinControl.RGB_STRIP_RED_PIN,
+	    'green'     : pinControl.RGB_STRIP_GREEN_PIN,
+	    'blue'      : pinControl.RGB_STRIP_BLUE_PIN,
+	    'white'     : pinControl.WHITE_STRIP_PIN
+	})
+
+	print('starting sunrise alarm...')
+	sunrise.sunriseAlarm(duration, pinController)
+
 def main():
-	controller_test_2()
+	sunriseTest1()
 
 main()
