@@ -106,7 +106,7 @@ class myHandler(SimpleHTTPRequestHandler):
             elif parsed.path == '/{}'.format(SCHEDULE_SUNRISE_ENDPOINT):
                 if 'duration' not in query:
                     raise ValueError('missing param: {}'.format('duration'))
-                self.do_scheduleEvent('sunrise_alarm', query, sunrise.sunriseAlarm, [ query['duration'], pinController ])
+                self.do_scheduleEvent('sunrise_alarm', query, sunrise.sunriseAlarm, [ float(query['duration']), pinController ])
 
             # default
             else:
