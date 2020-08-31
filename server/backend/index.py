@@ -75,7 +75,6 @@ class myHandler(SimpleHTTPRequestHandler):
         try:
             parsed = urlparse(unquote(self.path))
             query = parse_qs(parsed.query)
-            print('parsed query: {}'.format(query))
 
             # misc
             if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
