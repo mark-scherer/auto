@@ -75,7 +75,7 @@ class myHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
-    def do_scheduleEvent(eventName, query, eventFunc, eventFuncArgs):
+    def do_scheduleEvent(self, eventName, query, eventFunc, eventFuncArgs):
         if 'datetime' not in query:
             raise ValueError('missing param: {}'.format('datetime'))
         
