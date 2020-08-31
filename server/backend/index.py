@@ -83,9 +83,9 @@ class myHandler(SimpleHTTPRequestHandler):
 
             # direct controls
             elif parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
-                self.do_updatePins(parsed.query, RGB_PINS)
+                self.do_updatePins(query, RGB_PINS)
             elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
-                self.do_updatePins(parsed.query, WHITE_PINS)
+                self.do_updatePins(query, WHITE_PINS)
             
             # event schedulers
             elif parsed.path == '/{}'.format(SCHEDULE_SUNRISE_ENDPOINT):
