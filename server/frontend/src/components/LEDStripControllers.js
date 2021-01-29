@@ -2,8 +2,8 @@ import React, { Component } 					from 'react';
 import { Typography, Slider } 				from '@material-ui/core';
 import _                              from 'lodash';
 
-import * as config_public             from '../../../config/config_public.json'
-import * as config_private            from '../../../config/config_private.json'
+import * as config_public             from '../../../configs/config_public.json'
+import * as config_private            from '../../../configs/config_private.json'
 import * as misc                      from '../utils/misc'
 
 const CONFIG = Object.assign({}, config_public, config_private)

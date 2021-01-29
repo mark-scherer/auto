@@ -2,8 +2,8 @@ import React, { Component }                         from 'react';
 import _                                            from 'lodash';
 import './App.css';
 
-import * as config_public                           from '../../config/config_public.json'
-import * as config_private                          from '../../config/config_private.json'
+import * as config_public                           from '../../configs/config_public.json'
+import * as config_private                          from '../../configs/config_private.json'
 import * as misc                                    from './utils/misc'
 
 import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
