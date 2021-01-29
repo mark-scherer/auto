@@ -41,7 +41,7 @@ class StripController extends Component {
 
     intensities[channel] = value
 
-    const full_url = `${CONFIG.BASE_URL}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
+    const full_url = `http:${CONFIG.server.host}:${CONFIG.server.port}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
     misc.makeRequest(full_url)
       // .then(response => console.log(`updated ${this.label} intensities: ${JSON.stringify({ intensities })}`))
       .catch(error => console.error(`error updating ${this.label} intensities: ${JSON.stringify({ intensities, error: String(error) })}`))
@@ -78,7 +78,7 @@ class StripController extends Component {
 
 class RGBStripController extends StripController {
   label     = 'rgb strip'
-  endpoint  = CONFIG.RGB_CONTROL_ENDPOINT
+  endpoint  = CONFIG.endpoints.RGB_CONTROL_ENDPOINT
   
   constructor(props) {
     super(props)
@@ -94,7 +94,7 @@ class RGBStripController extends StripController {
 
 class WhiteStripController extends StripController {
   label     = 'white strip'
-  endpoint  = CONFIG.WHITE_CONTROL_ENDPOINT
+  endpoint  = CONFIG.endpoints.WHITE_CONTROL_ENDPOINT
   
   constructor(props) {
     super(props)
