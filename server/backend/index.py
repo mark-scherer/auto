@@ -4,16 +4,16 @@ import os
 import sys
 import json
 
-sys.path.append('controllers/')
+sys.path.append(os.path.join(__file__, '../../controllers/'))
 import pinController as pinControl
 import scheduler as schedule
 
-sys.path.append('controllers/scripts/')
+sys.path.append(os.path.join(__file__, '../../controllers/scripts'))
 import sunriseAlarm as sunrise
 
-with open('../configs/config_public.json') as f:
+with open(os.path.join(__file__, '../configs/config_public.json')) as f:
     config_public = json.load(f)
-with open('../configs/config_private.json') as f:
+with open(os.path.join(__file__, '../configs/config_private.json')) as f:
     config_private = json.load(f)
 CONFIG = {**config_public, **config_private}
 frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
