@@ -29,13 +29,17 @@ scheduler       = schedule.Scheduler()
 
 class myHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server, directory=frontend_path)        
+        super().__init__(request, client_address, server, directory=frontend_path)
+
+    def sendResponse(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
 
     def do_getCurrentValues(self):
         response = json.dumps(pinController.getPinValues())
 
-        self.send_response(200)
-        self.end_headers()
+        self.sendResponse()
         self.wfile.write(response.encode('utf-8'))
 
     def do_updatePins(self, query, stripPins):
@@ -50,8 +54,7 @@ class myHandler(SimpleHTTPRequestHandler):
             except Exception as error:
                 raise ValueError('unsupported {} intensity value: {}... {}'.format(pin_name, query[pin_name], error))
 
-        self.send_response(200)
-        self.end_headers()
+        self.sendResponse()
 
     def do_scheduleEvent(self, eventName, query, eventFunc, eventFuncArgs):
         if 'datetime' not in query:
@@ -60,8 +63,7 @@ class myHandler(SimpleHTTPRequestHandler):
         scheduler.addEvent(eventName, query['datetime'][0], eventFunc, eventFuncArgs)
         print('scheduled {} for {}'.format(eventName, query['datetime']))
 
-        self.send_response(200)
-        self.end_headers()            
+        self.sendResponse()           
 
     #Handler for the GET requests
     def do_GET(self):
