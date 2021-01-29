@@ -41,7 +41,7 @@ class StripController extends Component {
 
     intensities[channel] = value
 
-    const full_url = `http:${CONFIG.server.host}:${CONFIG.server.port}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/${this.endpoint}?${_.map(intensities, (value, channel) => `${channel}=${value/100}`).join('&')}`
     misc.makeRequest(full_url)
       // .then(response => console.log(`updated ${this.label} intensities: ${JSON.stringify({ intensities })}`))
       .catch(error => console.error(`error updating ${this.label} intensities: ${JSON.stringify({ intensities, error: String(error) })}`))
