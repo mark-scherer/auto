@@ -11,10 +11,12 @@ import scheduler as schedule
 sys.path.append('controllers/scripts/')
 import sunriseAlarm as sunrise
 
-config_public = json.loads('../configs/config_public.json')
-config_private = json.loads('../configs/config_private.json')
+with open('../configs/config_public.json') as f:
+    config_public = json.load(f)
+with open('../configs/config_private.json') as f:
+    config_private = json.load(f)
 CONFIG = {**config_public, **config_private}
-frontend_path   = os.path.join(os.getcwd(), 'server/frontend/build')
+frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
 
 # server globals
 pinController   = pinControl.PinController({

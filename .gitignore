@@ -1,4 +1,4 @@
-server/config/config_private.json
+server/configs/config_private.json
 
 # misc to ignore
 *__pycache__*
