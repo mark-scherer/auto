@@ -2,8 +2,11 @@ import React, { Component } 					from 'react';
 import { Typography, Slider } 				from '@material-ui/core';
 import _                              from 'lodash';
 
-import * as CONFIG                    from '../incl/config'
+import * as config_public             from '../../../config/config_public.json'
+import * as config_private            from '../../../config/config_private.json'
 import * as misc                      from '../utils/misc'
+
+const CONFIG = Object.assign({}, config_public, config_private)
 
 class StripController extends Component {
   label     = 'strip'
@@ -81,9 +84,9 @@ class RGBStripController extends StripController {
     super(props)
     this.state = {
       intensities : {
-        red         : 0,
-        green       : 0,
-        blue        : 0
+        RED         : 0,
+        GREEN       : 0,
+        BLUE        : 0
       }
     }
   }
@@ -97,7 +100,7 @@ class WhiteStripController extends StripController {
     super(props)
     this.state = {
       intensities : {
-        white       : 0,
+        WHITE       : 0,
       }
     }
   }

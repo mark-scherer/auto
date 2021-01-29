@@ -1,0 +1,18 @@
+{
+	"endpoints": {
+		"INITIAL_INTENSITIES_ENDPOINT": "get_current_values",
+		"RGB_CONTROL_ENDPOINT": "update_rgb_strip",
+		"WHITE_CONTROL_ENDPOINT": "update_white_strip",
+		"SCHEDULE_SUNRISE_ENDPOINT": "schedule_sunrise"
+	},
+	"pins": {
+		"rgb": {
+			"RED": 11,
+			"GREEN": 12,
+			"BLUE": 13
+		},
+		"white": {
+			"WHITE": 15
+		}
+	}
+}

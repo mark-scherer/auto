@@ -11,26 +11,15 @@ import scheduler as schedule
 sys.path.append('controllers/scripts/')
 import sunriseAlarm as sunrise
 
-# server options
-port            = 8080
+config_public = json.loads('../configs/config_public.json')
+config_private = json.loads('../configs/config_private.json')
+CONFIG = {**config_public, **config_private}
 frontend_path   = os.path.join(os.getcwd(), 'server/frontend/build')
-
-# server constants
-CURRENT_VALUES_ENDPOINT         = 'get_current_values'
-RGB_CONTROL_ENDPOINT            = 'update_rgb_strip'
-WHITE_CONTROL_ENDPOINT          = 'update_white_strip'
-SCHEDULE_SUNRISE_ENDPOINT       = 'schedule_sunrise'
-
-
-RGB_PINS                        = ['red', 'green', 'blue']
-WHITE_PINS                      = ['white']
 
 # server globals
 pinController   = pinControl.PinController({
-    'red'       : pinControl.RGB_STRIP_RED_PIN,
-    'green'     : pinControl.RGB_STRIP_GREEN_PIN,
-    'blue'      : pinControl.RGB_STRIP_BLUE_PIN,
-    'white'     : pinControl.WHITE_STRIP_PIN
+    **CONFIG['pins']['rgb'],
+    **CONFIG['pins']['white'],
 })
 scheduler       = schedule.Scheduler()
 
@@ -77,17 +66,17 @@ class myHandler(SimpleHTTPRequestHandler):
             query = parse_qs(parsed.query)
 
             # misc
-            if parsed.path == '/{}'.format(CURRENT_VALUES_ENDPOINT):
+            if parsed.path == '/{}'.format(CONFIG['endpoints']['INITIAL_INTENSITIES_ENDPOINT']):
                 self.do_getCurrentValues()
 
             # direct controls
-            elif parsed.path == '/{}'.format(RGB_CONTROL_ENDPOINT):
-                self.do_updatePins(query, RGB_PINS)
-            elif parsed.path == '/{}'.format(WHITE_CONTROL_ENDPOINT):
-                self.do_updatePins(query, WHITE_PINS)
+            elif parsed.path == '/{}'.format(CONFIG['endpoints']['RGB_CONTROL_ENDPOINT']):
+                self.do_updatePins(query, CONFIG['pins']['rgb'].keys())
+            elif parsed.path == '/{}'.format(CONFIG['endpoints']['WHITE_CONTROL_ENDPOINT']):
+                self.do_updatePins(query, CONFIG['pins']['white'].keys())
             
             # event schedulers
-            elif parsed.path == '/{}'.format(SCHEDULE_SUNRISE_ENDPOINT):
+            elif parsed.path == '/{}'.format(CONFIG['endpoints']['SCHEDULE_SUNRISE_ENDPOINT']):
                 if 'duration' not in query:
                     raise ValueError('missing param: {}'.format('duration'))
                 self.do_scheduleEvent('sunrise_alarm', query, sunrise.sunriseAlarm, [ float(query['duration'][0]), pinController ])
@@ -99,7 +88,7 @@ class myHandler(SimpleHTTPRequestHandler):
             print('exception handling GET request ({}): {}'.format(self.path, error))
             self.send_error(400, message="error: {}".format(error)) 
 
-
+port = CONFIG['server']['port']
 server = HTTPServer(('', port), myHandler)
 print('Started httpserver on port {}'.format(port))
 server.serve_forever()

@@ -2,10 +2,13 @@ import React, { Component }                         from 'react';
 import _                                            from 'lodash';
 import './App.css';
 
-import * as CONFIG                                  from './incl/config'
+import * as config_public                           from '../../config/config_public.json'
+import * as config_private                          from '../../config/config_private.json'
 import * as misc                                    from './utils/misc'
 
 import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
+
+const CONFIG = Object.assign({}, config_public, config_private)
 
 class App extends Component {
   constructor(props) {
@@ -17,7 +20,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const full_url = `${CONFIG.BASE_URL}/${CONFIG.INITIAL_INTENSITIES_ENDPOINT}`
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/${CONFIG.endpoints.INITIAL_INTENSITIES_ENDPOINT}`
     misc.makeRequest(full_url)
       .then(response => {
         const initialIntensities = _.fromPairs(_.map(JSON.parse(response.body), (value, channel) => [ channel, value*100 ]))
