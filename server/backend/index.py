@@ -18,7 +18,7 @@ with open(os.path.join(_dir, '../configs/config_public.json')) as f:
 with open(os.path.join(_dir, '../configs/config_private.json')) as f:
     config_private = json.load(f)
 CONFIG = {**config_public, **config_private}
-frontend_path = os.path.join(os.getcwd(), 'server/frontend/build')
+frontend_path = os.path.join(_dir, '../frontend/build')
 
 # server globals
 pinController   = pinControl.PinController({
