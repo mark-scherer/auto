@@ -20,13 +20,10 @@ with open(os.path.join(_dir, '../configs/config_private.json')) as f:
 CONFIG = {**config_public, **config_private}
 FRONTEND_PATH = os.path.join(_dir, '../frontend/build')
 
-# server globals
-
-
 class myHandler(SimpleHTTPRequestHandler):
-    self.pinController = pinControl.PinController(CONFIG['outputs'])
 
     def __init__(self, request, client_address, server):
+        self.pinController = pinControl.PinController(CONFIG['outputs'])
         super().__init__(request, client_address, server, directory=FRONTEND_PATH)
 
     def validateQuery(parsed_query, required_fields):
@@ -46,7 +43,7 @@ class myHandler(SimpleHTTPRequestHandler):
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
             self.pinController.setPin(**parsed_query)
         else:
-            raise ValueError(f'unsupported mode: {parsed_query['mode']}')
+            raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         self.sendResponseStart()         
 
     def do_status(parsed_query):

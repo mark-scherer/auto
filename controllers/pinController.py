@@ -9,7 +9,7 @@ class PinController:
 	'''
 		pi: prep all channels & set to 0
 	'''
-	def piSetup(pin_guide):
+	def piSetup(self, pin_guide):
 		GPIO.setwarnings(False)
 		GPIO.setmode(GPIO.BOARD)
 		for output, output_guide in pin_guide.items():
@@ -43,7 +43,7 @@ class PinController:
 		if output not in self.pin_objects:
 			raise ValueError(f'setPin: invalid output: {output}')
 		if channel not in self.pin_objects[output]:
-			raise ValueError(f'setPin: invalid channel for output: {json.dumps({'output': output, 'channel': channel})}')
+			raise ValueError(f'setPin: invalid channel for output: {json.dumps({"output": output, "channel": channel})}')
 
 		if value < 0 or value > 1:
 			raise ValueError(f'setPin: value out of bounds: {value}')
