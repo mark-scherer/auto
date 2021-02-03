@@ -16,7 +16,7 @@ class App extends Component {
     super(props)
 
     this.state = {
-      serverState: null
+      serverState: null,
       updateIntervalID: setInterval(updateServerState, SERVER_UPDATE_INTERVAL)
     }
   }
@@ -25,7 +25,7 @@ class App extends Component {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/status`
     misc.makeRequest(full_url)
       .then(response => {
-        const serverState = JSON.parse(response.body),
+        const serverState = JSON.parse(response.body)
         console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
         this.setState({
           serverState
