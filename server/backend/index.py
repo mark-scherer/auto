@@ -20,10 +20,12 @@ with open(os.path.join(_dir, '../configs/config_private.json')) as f:
 CONFIG = {**config_public, **config_private}
 FRONTEND_PATH = os.path.join(_dir, '../frontend/build')
 
+# server globals (new handler instance created for each request)
+pinController = pinControl.PinController(CONFIG['outputs'])
+
 class myHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
-        self.pinController = pinControl.PinController(CONFIG['outputs'])
         super().__init__(request, client_address, server, directory=FRONTEND_PATH)
 
     def validateQuery(self, parsed_query, required_fields):
@@ -41,7 +43,7 @@ class myHandler(SimpleHTTPRequestHandler):
 
         if parsed_query['mode'][0] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
-            self.pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
+            pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         self.sendResponseStart()         
