@@ -23,7 +23,7 @@ class App extends Component {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/status`
     misc.makeRequest(full_url)
       .then(response => {
-        const serverState = response
+        const serverState = JSON.parse(response.body)
         console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
         this.setState({
           serverState
