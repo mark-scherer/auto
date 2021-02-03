@@ -14,11 +14,18 @@ const SERVER_UPDATE_INTERVAL = 1000   // ms
 class App extends Component {
   constructor(props) {
     super(props)
+    this.setServerState = this.setServerState.bind(this)
 
     this.state = {
       serverState: null,
       updateIntervalID: setInterval(this.updateServerState, SERVER_UPDATE_INTERVAL)
     }
+  }
+
+  setServerState(serverState) {
+    this.setState({
+      serverState
+    })
   }
 
   updateServerState() {
@@ -27,9 +34,7 @@ class App extends Component {
       .then(response => {
         const serverState = JSON.parse(response.body)
         console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
-        this.setState({
-          serverState
-        })
+        this.setServerState(serverState)
       })
       .catch(error => console.error(`App: error getting serverState: ${JSON.stringify({ error: String(error) })}`))
   }
