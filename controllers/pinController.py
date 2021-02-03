@@ -50,3 +50,5 @@ class PinController:
 
 		self.pin_objects[output][channel].ChangeDutyCycle(value*100)
 		self.current_values[output][channel] = value
+
+		print(f'updated pin: {json.dumps({"output": output, "channel": channel, "value": value})},\ncurrent_values: {json.dumps(self.current_values)}')
