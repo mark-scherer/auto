@@ -54,7 +54,7 @@ class myHandler(SimpleHTTPRequestHandler):
             'intensities': json.dumps(pinController.getPinValues())
         }
         self.sendResponseStart()
-        self.wfile.write(response.encode('utf-8'))  
+        self.wfile.write(json.dumps(response).encode('utf-8'))  
 
     #Handler for the GET requests
     def do_GET(self):

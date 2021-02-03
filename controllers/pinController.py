@@ -10,7 +10,6 @@ class PinController:
 		pin_guide: dict of format: {output_name_1, {channel_name_1: pin_number_1, ...,}, ...}
 	'''
 	def __init__(self, pin_guide):
-		print(f'creating PinController: {pin_guide}')
 		self.pin_objects = copy.deepcopy(pin_guide)
 		self.current_values = copy.deepcopy(pin_guide)
 		for output, output_guide in pin_guide.items():
@@ -30,13 +29,10 @@ class PinController:
 				GPIO.setup(pin_number, GPIO.OUT)
 				self.pin_objects[output][channel] = GPIO.PWM(pin_number, 1000)
 				self.pin_objects[output][channel].start(0)
-				print(f'setup pin: {json.dumps({"output": output, "channel": channel})}')
-
 
 	def getPinValues(self):
 		return self.current_values
 		
-
 	'''
 		update pwm intensity on specified pin (0-1)
 	'''
@@ -51,5 +47,3 @@ class PinController:
 
 		self.pin_objects[output][channel].ChangeDutyCycle(value*100)
 		self.current_values[output][channel] = value
-
-		print(f'updated pin: {json.dumps({"output": output, "channel": channel, "value": value})},\ncurrent_values: {json.dumps(self.current_values)}')
