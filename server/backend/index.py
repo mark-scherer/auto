@@ -64,9 +64,6 @@ class myHandler(SimpleHTTPRequestHandler):
             parsed_path = parsed_request.path[1:].split('/')
             parsed_query = parse_qs(parsed_request.query)
 
-            print(parsed_request)
-            print(parsed_query)
-
             if parsed_path[0] == 'control':
                 self.do_control(parsed_path, parsed_query)
             elif parsed_path[0] == 'status':
