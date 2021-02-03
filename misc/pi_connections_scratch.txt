@@ -1,0 +1,227 @@
+### pi connections scratch ###
+
+### issue: 1/31/2021 ###
+- page doesn't load
+- ssh times out
+- router does not recognize connection
+	-> pi red light is on, green is off
+<- all resolved after restart (~6:40pm = 18:40 12/31/2021)
+<- last worked afternoon of 12/29/2021 ~3pm = 15:00
+
+### debug ###
+1. syslogs (/var/log/syslog)
+	- syslog breakdown (as of 12/21/2021 6:55pm = 18:55)
+		1. syslog 		: 1/31/2021 00:00 -> 1/31/2021 18:54 ( 3.4k lines)
+		2. syslog.1 	: 1/30/2021 00:00 -> 1/31/2021 00:00 ( 3.3k lines)
+		3. syslog.2 	: 1/29/2021 00:00 -> 1/30/2021 00:00 (15.8k lines)
+		<- renamed local copies according to log date
+	- looking last auto api logs
+		1/29/2021: last api log at 20:03:51
+		1/30/2021: no logs seen (looking for python logs)
+		1/31/2021: first logs seen at 18:40 <- right after startup
+	- looking for network startup logs after restart
+		- only small logs seen at 18:39 1/31/2021
+			- systemd-timesyncd
+			- systemd
+			-> no logs before until 18:17 1/31/2021
+	- reviewing dhcpcd logs 
+		- background
+			- dhcpcd is a DHCPv6 client
+			- dhcpcd.service manages running/restarting at powerup
+		- 1/31/2021:
+			18:17:07 : wlan0: starting wpa_supplicant
+			18:17:11 : wlan0: connected to Access Point `BuildAVibeWorkshop'
+			18:17:13 : wlan0: rebinding lease of 192.168.0.193
+			18:17:18 : wlan0: leased 192.168.0.193 for infinity
+		- 1/30/2021
+			- re-leased network connection 68 times, last at 17:00
+				- first at 	: 00:21
+				- last at 	: 17:00
+					<- no dhcpcd logs after this
+				- averages every 15 mins
+		- 1/29/2021
+			- re-leased network connection 42 times
+				- first at 	: 02:21
+				- last at 	: 23:51
+				- averages every 34 mins
+		<- see no disconnect messages...
+	- power save logs
+		- suggested by: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=138137
+		- relevant system files
+			- /etc/rc.local
+				- comments say is executed at the "end of each multiuser runlevel"
+				- already has line: /sbin/iwconfig wlan0 power off
+			- /etc/network/interfaces
+				- does nothing, comments say: 
+					a. used by ifup & ifdown
+					b. for static IPs consult /etc/dhcpcd.conf
+			- /etc/dhcpcd.conf
+				- no enabled static IP info
+		1/29/2021 13:17:05 : brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+		1/31/2021 18:17:05 : brcmfmac: brcmf_cfg80211_set_power_mgmt: power save disabled
+			<- both immediate following "IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready"
+		<- looks like brcmfmac disables wifi powersave mode by default
+			- brcmfmac is the Broadcom BCM43602 wifi transmitter chip driver for Debian systems
+	- brcmfmac logs
+		- brcmfmac error regex: brcmfmac.+error.+
+		<- NOTE all errors categorized, just each prints out 2 log lines
+		- 1/29/2021: 472 brcmfmac error logs
+			3   : brcmf_run_escan: error (-52) 
+				- last at 07:56
+			233 : brcmfmac: brcmf_run_escan: error (-110)
+				- last at 14:04
+		- 1/30/2021: 834 brcmfmac error logs
+			417	: brcmfmac: brcmf_run_escan: error (-110)
+				- first at 17:09
+				- last at 12/31/2021 00:00 <- NO other syslogs between
+				- average every 59 seconds
+			<- start right after final successful network re-lease at 17:00
+		- 1/31/2021: 2234 brcmfmac error logs
+			1116: brcmfmac: brcmf_run_escan: error (-110)
+				- first at 00:01
+				- last at 18:36
+				- average every 60 seconds
+				<- stop after manual reboot at 18:40
+	- Log timing note:
+		- right after reboot at ~18:40, log timestamps jump back to ~18:17 before time sync jumps up to ~18:40
+			1/31/2021 18:36:47 : last pre-reboot log?
+			1/31/2021 18:17:05 : first post-reboot log?
+			1/31/2021 18:17:34 : last pre-sync log
+			1/31/2021 18:39:03 : systemd-timesyncd[292]: Synchronized to time server for the first time 209.58.140.18:123 (2.debian.pool.ntp.org).
+				- systemd-timesyncd is a daemon for syncing time across the network run by the systemd-timesyncd systemctl service
+	- investigating brcmfmac error: brcmf_run_escan: error (-110)
+		1. thread of similar issue: https://www.raspberrypi.org/forums/viewtopic.php?t=196018
+			- thread started in Oct 2017
+			- example error looks like this:
+				brcmfmac: brcmf_sdio_hostmail: Unknown mailbox data content: 0x40012
+				(below repeating)
+				brcmfmac: brcmf_do_escan: error (-110)
+				brcmfmac: brcmf_cfg80211_scan: scan error (-110)
+			- my error:
+				brcmfmac: brcmf_sdio_hostmail: mailbox indicates firmware halted
+				brcmfmac: brcmf_run_escan: error (-110)
+				brcmfmac: brcmf_cfg80211_scan: scan error (-110)
+			- some solve by switching to wifi dongle instead of using built-in wifi chip
+			- specific issue fixed by kernal update by June 2018
+		2. thread of exact issue for 3B+: https://www.raspberrypi.org/forums/viewtopic.php?t=249750
+			- thread started in Aug 2019
+			- error:
+				brcmfmac: brcmf_run_escan: error (-52)
+				brcmfmac: brcmf_cfg80211_scan: scan error (-52)
+				...
+				brcmfmac: brcmf_sdio_hostmail: mailbox indicates firmware halted
+				brcmfmac: brcmf_sdio_bus_rxctl: resumed on timeout
+				brcmfmac: brcmf_sdio_checkdied: firmware trap in dongle
+				(repeating)
+				brcmfmac: brcmf_run_escan: error (-110)
+				brcmfmac: brcmf_cfg80211_scan: scan error (-110)
+				brcmfmac: brcmf_sdio_bus_rxctl: resumed on timeout
+				brcmfmac: brcmf_sdio_checkdied: firmware trap in dongle
+			- solution 1 (4/22/2020): revert Broadcomm firmware
+				cd ~
+				wget  https://community.cypress.com/servlet/JiveServlet/download/19000-1-51721/cypress-fmac-v4.14.77-2020_0115.zip
+				unzip cypress-fmac-v4.14.77-2020_0115.zip -d cypress
+				cd cypress
+				gunzip cypress-firmware-v4.14.77-2020_0115.tar.gz
+				tar xvf cypress-firmware-v4.14.77-2020_0115.tar
+				cd /lib/firmware/
+				cp -R brcm /home/pi/brcm.old
+				cd brcm
+				rm -rf *
+				cp -R /home/pi/cypress/firmware/* .
+				reboot now
+				<- reverts /lib/firmware/brcm to 1/15/2020 archived version
+			- solution 2 (4/24/2020): revert Broadcomm firmware 2
+				wget https://archive.raspberrypi.org/debian/pool/main/f/firmware-nonfree/firmware-brcm80211_20161130-3+rpt3_all.deb
+				sudo dpkg -i firmware-brcm80211_20161130-3+rpt3_all.deb
+				sudo reboot
+				<- installs archived broadcomm firmware from 11/30/2016
+					<- archives show 11/30/2016 & 1/14/2019 version, user said reverting to 1/14/2019 did not solve issue
+				- before: 
+		3. thread of exact issue for 4: https://www.raspberrypi.org/forums/viewtopic.php?t=271884
+			- thread created in April 2020
+			- notes as of april 2020, running most up to date firmware
+			- solution was just to ping network regularly
+		4. blog of very similar issue: brcmfmac-brcmf_cfg80211_scan-scan-error-110.html
+			- links two github issues:
+				a. https://andreas.scherbaum.la/blog/exit.php?url_id=10746&entry_id=1001
+					- looks like exact issue
+					- issue opened March 2019
+					- conclusion in Oct 2020 was if wanted stable wifi, need to revert to "7.45.18.0" firmware (from 2015)
+				b. https://github.com/raspberrypi/linux/issues/3155
+					- looks like exact issue
+					- issue opened Aug 2019
+					- issue still open, last comment June 2020
+			- blog's solution was to cron script reboot pi if network was down
+	- reverting brcm80211 firmware
+		- before:
+			pi@raspberrypi:~ $ apt-cache policy firmware-brcm80211
+			firmware-brcm80211:
+			  Installed: 1:20190114-1+rpt7
+			  Candidate: 1:20190114-1+rpt7
+			  Version table:
+			 *** 1:20190114-1+rpt7 500
+			        500 http://archive.raspberrypi.org/debian buster/main armhf Packages
+			        100 /var/lib/dpkg/status
+			     20190114-2 500
+			        500 http://raspbian.raspberrypi.org/raspbian buster/non-free armhf Packages
+			pi@raspberrypi:~ $
+		- action:
+			wget https://archive.raspberrypi.org/debian/pool/main/f/firmware-nonfree/firmware-brcm80211_20161130-3+rpt3_all.deb
+			sudo dpkg -i firmware-brcm80211_20161130-3+rpt3_all.deb
+			sudo reboot
+		- after:
+			- pi does not connect to wifi...
+			<- running sudo iwlist wlan0 scan gets:
+				wlan0 		 Interface doesn't support scanning
+			- try different versions of brcm80211 firmware?
+				1. original: 20190114-1+rpt7 (archive lists as 8/19/2020)
+					- had disconnect error
+				2. attempted: 20161130-3+rpt3 (archive lists as 6/4/2018)
+					- can't connect to wifi
+				3. most current: 20190114-1+rpt11  (archive lists as 1/25/2021)
+					- wifi works, unclear if resolves issue
+					- changelog (https://github.com/RPi-Distro/firmware-nonfree/commit/83938f78ca2d5a0ffe0c223bb96d72ccc7b71ca5) says resolves similar wifi dropout issue (https://github.com/raspberrypi/linux/issues/3849)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
