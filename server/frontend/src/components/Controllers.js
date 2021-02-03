@@ -43,7 +43,7 @@ class StripController extends Component {
 
     outputState[channel] = value
 
-    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/controls/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
     misc.makeRequest(full_url)
       .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
       .catch(error => console.error(`error updating ${this.outputName}/${channel} intensity: ${JSON.stringify({ value, error: String(error) })}`))
@@ -68,7 +68,7 @@ class StripController extends Component {
               return (
                 <div id={_id}>
                   <Typography gutterBottom>{channel}</Typography>
-                  <Slider value={intensity} onChange={(event, newValue) => { this.updateIntensity(channel, newValue) }} aria-labelledby="continuous-slider" />
+                  <Slider max=1 value={intensity} onChange={(event, newValue) => { this.updateIntensity(channel, newValue) }} aria-labelledby="continuous-slider" />
                 </div>
               )
             })
