@@ -8,11 +8,9 @@ import * as misc                      from '../utils/misc'
 
 const CONFIG = Object.assign({}, config_public, config_private)
 
-class StripController extends Component {
-  static channels   = []
-  label             = 'strip'
-  endpoint          = null
+const MAX_VALUE = 1.0
 
+class StripController extends Component {
   constructor(props) {
     super(props)
 
@@ -68,7 +66,7 @@ class StripController extends Component {
               return (
                 <div id={_id}>
                   <Typography gutterBottom>{channel}</Typography>
-                  <Slider max=1 value={intensity} onChange={(event, newValue) => { this.updateIntensity(channel, newValue) }} aria-labelledby="continuous-slider" />
+                  <Slider max={MAX_VALUE} value={intensity} onChange={(event, newValue) => { this.updateIntensity(channel, newValue/MAX_VALUE) }} aria-labelledby="continuous-slider" />
                 </div>
               )
             })
