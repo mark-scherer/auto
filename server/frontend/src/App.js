@@ -15,7 +15,7 @@ class App extends Component {
     super(props)
 
     this.state = {
-      serverState
+      serverState: null
     }
   }
 
@@ -44,7 +44,8 @@ class App extends Component {
     return (
       <div className="App">
       {
-        _.map(serverState.intensities || [], (outputState, outputName) => {
+        const intensityMap = serverState && serverState.intensities ? serverState.intensities : null
+        _.map(intensityMap, (outputState, outputName) => {
           return <StripController outputName={outputName} outputState={outputState} />
         })
       }
