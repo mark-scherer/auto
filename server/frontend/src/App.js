@@ -14,7 +14,6 @@ const SERVER_UPDATE_INTERVAL = 1000   // ms
 class App extends Component {
   constructor(props) {
     super(props)
-    this.setServerState = this.setServerState.bind(this)
     this.updateServerState = this.updateServerState.bind(this)
 
     this.state = {
@@ -23,19 +22,15 @@ class App extends Component {
     }
   }
 
-  setServerState(serverState) {
-    this.setState({
-      serverState
-    })
-  }
-
   updateServerState() {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/status`
     misc.makeRequest(full_url)
       .then(response => {
         const serverState = JSON.parse(response.body)
         console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
-        this.setServerState(serverState)
+        this.setState({
+          serverState
+        })
       })
       .catch(error => console.error(`App: error getting serverState: ${JSON.stringify({ error: String(error) })}`))
   }
