@@ -7,34 +7,57 @@ import * as config_private            from '../../../configs/config_private.json
 import * as misc                      from '../utils/misc'
 
 const CONFIG = Object.assign({}, config_public, config_private)
+const SELF_UPDATE_HOLD = 5000   // ms
 
 class StripController extends Component {
   constructor(props) {
     super(props)
 
     this.outputName = props.outputName
+    this.lastSelfUpdates = {}
+    this.state = {
+      outputState
+    }
   }
 
   updateIntensity(channel, value) {
+    const {
+      outputState
+    } = this.state
+
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
     misc.makeRequest(full_url)
       // .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
       .catch(error => console.error(`error updating ${this.outputName}/${channel} intensity: ${JSON.stringify({ value, error: String(error) })}`))
 
-    this.props.updateIntensityState(this.outputName, channel, value)
+    outputState[channel] = value
+
+    this.setState({
+      outputState
+    })
   }
 
   render() {
     const {
       outputState
+    } = this.state
+
+    const {
+      serverOutputState
     } = this.props
+
+    const mergedOutputState = {}
+    _.forEach(outputState, (selfIntensity, channel) => {
+      if (lastSelfUpdates[channel] && (new Date() - lastSelfUpdates[channel]) < SELF_UPDATE_HOLD) mergedOutputState[channel] = selfIntensity
+      else mergedOutputState[channel] = serverOutputState[channel]
+    })
 
     return (
       <div className="controls">
         <Typography variant="h6">{this.outputName}</Typography>
         <div className="colorControls">
           {
-            _.map(outputState, (intensity, channel) => {
+            _.map(mergedOutputState, (intensity, channel) => {
               const _id = `colorControl-{this.outputName}-{this.channel}`
               return (
                 <div id={_id}>
