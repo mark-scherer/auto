@@ -38,17 +38,15 @@ class myHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
-    def do_control(self, parsed_query):
-        self.validateQuery(parsed_query, ['mode'])
-
-        if parsed_query['mode'][0] == 'updateIntensity':
+    def do_control(self, parsed_path, parsed_query):
+        if parsed_path[1] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
             pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         self.sendResponseStart()         
 
-    def do_status(self, parsed_query):
+    def do_status(self, parsed_path, parsed_query):
         self.validateQuery(parsed_query, [])
         response = {
             'intensities': pinController.getPinValues()
@@ -67,9 +65,9 @@ class myHandler(SimpleHTTPRequestHandler):
             print(parsed_query)
 
             if parsed_path[0] == 'control':
-                self.do_control(parsed_query)
+                self.do_control(parsed_path, parsed_query)
             elif parsed_path[0] == 'status':
-                self.do_status(parsed_query)
+                self.do_status(parsed_path, parsed_query)
 
             # default: send frontend
             else:
