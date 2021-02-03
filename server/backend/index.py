@@ -57,8 +57,9 @@ class myHandler(SimpleHTTPRequestHandler):
     #Handler for the GET requests
     def do_GET(self):
         try:
-            parsed_path = urlparse(unquote(self.path)).path[1:].split('/')
-            parsed_query = parse_qs(parsed.query)
+            parsed_request = urlparse(unquote(self.path))
+            parsed_path = parsed_request.path[1:].split('/')
+            parsed_query = parse_qs(parsed_request.query)
 
             if parsed_path[0] == 'control':
                 self.do_control(parsed_query)
