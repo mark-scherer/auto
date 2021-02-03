@@ -9,7 +9,7 @@ import * as misc                                    from './utils/misc'
 import { StripController }                          from './components/Controllers';
 
 const CONFIG = Object.assign({}, config_public, config_private)
-const SERVER_UPDATE_INTERVAL = 1000   // ms
+const SERVER_UPDATE_INTERVAL = 5000   // ms
 
 class App extends Component {
   constructor(props) {

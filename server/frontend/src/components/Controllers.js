@@ -7,7 +7,7 @@ import * as config_private            from '../../../configs/config_private.json
 import * as misc                      from '../utils/misc'
 
 const CONFIG = Object.assign({}, config_public, config_private)
-const SELF_UPDATE_HOLD = 5000   // ms
+const SELF_UPDATE_HOLD = 3000   // ms
 
 class StripController extends Component {
   constructor(props) {
