@@ -26,7 +26,7 @@ class myHandler(SimpleHTTPRequestHandler):
         self.pinController = pinControl.PinController(CONFIG['outputs'])
         super().__init__(request, client_address, server, directory=FRONTEND_PATH)
 
-    def validateQuery(parsed_query, required_fields):
+    def validateQuery(self, parsed_query, required_fields):
         for field in required_fields:
             if field not in parsed_query:
                 raise ValueError(f'query missing field: {field}')
@@ -36,7 +36,7 @@ class myHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
-    def do_control(parsed_query):
+    def do_control(self, parsed_query):
         self.validateQuery(parsed_query, ['mode'])
 
         if parsed_query['mode'] == 'updateIntensity':
@@ -46,7 +46,7 @@ class myHandler(SimpleHTTPRequestHandler):
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         self.sendResponseStart()         
 
-    def do_status(parsed_query):
+    def do_status(self, parsed_query):
         self.validateQuery(parsed_query, [])
         response = {
             'intensities': json.dumps(pinController.getPinValues())
