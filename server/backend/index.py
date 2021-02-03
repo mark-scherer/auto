@@ -39,6 +39,9 @@ class myHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_control(self, parsed_path, parsed_query):
+        if len(parsed_path) < 2:
+            raise ValueError(f'incomplete path: /{parsed_path.join('/')}')
+
         if parsed_path[1] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
             pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
