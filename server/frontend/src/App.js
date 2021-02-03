@@ -15,6 +15,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.setServerState = this.setServerState.bind(this)
+    this.updateServerState = this.updateServerState.bind(this)
 
     this.state = {
       serverState: null,
