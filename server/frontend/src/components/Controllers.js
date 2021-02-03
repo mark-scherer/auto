@@ -31,6 +31,7 @@ class StripController extends Component {
       .catch(error => console.error(`error updating ${this.outputName}/${channel} intensity: ${JSON.stringify({ value, error: String(error) })}`))
 
     outputState[channel] = value
+    this.lastSelfUpdates[channel] = new Date()
 
     this.setState({
       outputState
