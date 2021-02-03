@@ -16,7 +16,7 @@ class StripController extends Component {
     this.outputName = props.outputName
     this.lastSelfUpdates = {}
     this.state = {
-      outputState : null
+      outputState : _.cloneDeep(props.serverOutputState)
     }
   }
 
