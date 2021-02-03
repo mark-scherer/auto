@@ -18,20 +18,6 @@ class StripController extends Component {
     }
   }
 
-  // componentDidUpdate(prevProps) {
-  //   const {
-  //     intensities
-  //   } = this.state
-
-  //   _.forEach(intensities, (value, channel) => {
-  //     if (this.props.initialIntensities[channel] && 
-  //         this.props.initialIntensities[channel] !== prevProps.initialIntensities[channel] &&
-  //         this.props.initialIntensities[channel] !== value) {
-  //       this.updateIntensity(channel, this.props.initialIntensities[channel])
-  //     }
-  //   })
-  // }
-
   updateIntensity(channel, value) {
     const {
       outputState,
@@ -41,7 +27,7 @@ class StripController extends Component {
 
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
     misc.makeRequest(full_url)
-      .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
+      // .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
       .catch(error => console.error(`error updating ${this.outputName}/${channel} intensity: ${JSON.stringify({ value, error: String(error) })}`))
 
     this.setState({

@@ -9,6 +9,7 @@ import * as misc                                    from './utils/misc'
 import { StripController }                          from './components/Controllers';
 
 const CONFIG = Object.assign({}, config_public, config_private)
+const SERVER_UPDATE_INTERVAL = 1000   // ms
 
 class App extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class App extends Component {
 
     this.state = {
       serverState: null
+      updateIntervalID: setInterval(updateServerState, SERVER_UPDATE_INTERVAL)
     }
   }
 
@@ -34,6 +36,14 @@ class App extends Component {
 
   componentDidMount() {
     this.updateServerState()
+  }
+
+  componentWillUnmount() {
+    const {
+      updateIntervalID
+    } = this.state
+
+    clearInterval(updateIntervalID)
   }
 
   render() {
