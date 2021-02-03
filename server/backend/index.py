@@ -51,7 +51,7 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_status(self, parsed_query):
         self.validateQuery(parsed_query, [])
         response = {
-            'intensities': json.dumps(pinController.getPinValues())
+            'intensities': pinController.getPinValues()
         }
         self.sendResponseStart()
         self.wfile.write(json.dumps(response).encode('utf-8'))  
