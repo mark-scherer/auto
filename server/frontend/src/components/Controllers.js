@@ -13,32 +13,21 @@ class StripController extends Component {
     super(props)
 
     this.outputName = props.outputName
-    this.state = {
-      outputState : props.outputState
-    }
   }
 
   updateIntensity(channel, value) {
-    const {
-      outputState,
-    } = this.state
-
-    outputState[channel] = value
-
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
     misc.makeRequest(full_url)
       // .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
       .catch(error => console.error(`error updating ${this.outputName}/${channel} intensity: ${JSON.stringify({ value, error: String(error) })}`))
 
-    this.setState({
-      outputState
-    })
+    this.props.updateIntensityState(this.outputName, channel, value)
   }
 
   render() {
     const {
       outputState
-    } = this.state
+    } = this.props
 
     return (
       <div className="controls">

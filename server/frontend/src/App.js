@@ -22,6 +22,17 @@ class App extends Component {
     }
   }
 
+  updateIntensityState(output, channel, value) {
+    const {
+      serverState
+    } = this.state
+    
+    serverState.intensities[output][channel] = value
+    this.setState({
+      serverState
+    })
+  }
+
   updateServerState() {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/status`
     misc.makeRequest(full_url)
@@ -57,7 +68,7 @@ class App extends Component {
       <div className="App">
       {
         _.map(intensityMap, (outputState, outputName) => {
-          return <StripController outputName={outputName} outputState={outputState} />
+          return <StripController outputName={outputName} outputState={outputState} updateIntensityState={this.updateIntensityState}/>
         })
       }
       </div>
