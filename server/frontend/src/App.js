@@ -17,7 +17,7 @@ class App extends Component {
 
     this.state = {
       serverState: null,
-      updateIntervalID: setInterval(updateServerState, SERVER_UPDATE_INTERVAL)
+      updateIntervalID: setInterval(this.updateServerState, SERVER_UPDATE_INTERVAL)
     }
   }
 
