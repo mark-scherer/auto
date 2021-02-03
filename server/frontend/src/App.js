@@ -41,10 +41,10 @@ class App extends Component {
       serverState
     } = this.state
 
+    const intensityMap = serverState && serverState.intensities ? serverState.intensities : null
     return (
       <div className="App">
       {
-        const intensityMap = serverState && serverState.intensities ? serverState.intensities : null
         _.map(intensityMap, (outputState, outputName) => {
           return <StripController outputName={outputName} outputState={outputState} />
         })
