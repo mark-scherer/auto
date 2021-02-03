@@ -6,7 +6,7 @@ import * as config_public                           from '../../configs/config_p
 import * as config_private                          from '../../configs/config_private.json'
 import * as misc                                    from './utils/misc'
 
-import { RGBStripController, WhiteStripController } from './components/LEDStripControllers';
+import { StripController }                          from './components/Controllers';
 
 const CONFIG = Object.assign({}, config_public, config_private)
 
@@ -15,36 +15,39 @@ class App extends Component {
     super(props)
 
     this.state = {
-      initialIntensities   : {}
+      serverState
     }
   }
 
-  componentDidMount() {
-    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/${CONFIG.endpoints.INITIAL_INTENSITIES_ENDPOINT}`
+  updateServerState() {
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/status`
     misc.makeRequest(full_url)
       .then(response => {
-        const initialIntensities = _.fromPairs(_.map(JSON.parse(response.body), (value, channel) => [ channel, value*100 ]))
-        console.log(`App: got initial intensities : ${JSON.stringify({ initialIntensities })}`)
+        const serverState = response
+        console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
         this.setState({
-          initialIntensities
+          serverState
         })
       })
-      .catch(error => console.error(`App: error getting initial intensities: ${JSON.stringify({ error: String(error) })}`))
+      .catch(error => console.error(`App: error getting serverState: ${JSON.stringify({ error: String(error) })}`))
+  }
+
+  componentDidMount() {
+    this.updateServerState()
   }
 
   render() {
     const {
-      initialIntensities
+      serverState
     } = this.state
 
     return (
       <div className="App">
-        <RGBStripController
-          initialIntensities={initialIntensities}
-        />
-        <WhiteStripController
-          initialIntensities={initialIntensities}
-        />
+      {
+        _.map(serverState.intensities || [], (outputState, outputName) => {
+          return <StripController outputName={outputName} outputState={outputState} />
+        })
+      }
       </div>
     );
   }
