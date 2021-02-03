@@ -39,9 +39,9 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_control(self, parsed_query):
         self.validateQuery(parsed_query, ['mode'])
 
-        if parsed_query['mode'] == 'updateIntensity':
+        if parsed_query['mode'][0] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
-            self.pinController.setPin(**parsed_query)
+            self.pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], parsed_query['value'][0])
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         self.sendResponseStart()         
