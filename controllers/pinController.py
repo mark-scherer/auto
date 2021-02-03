@@ -34,7 +34,7 @@ class PinController:
 		return self.current_values
 		
 	'''
-		update pwm intensity on specified pin (0-1)
+		update pwm intensity on specified pin (0-100)
 	'''
 	def setPin(self, output, channel, value):
 		if output not in self.pin_objects:
@@ -42,8 +42,8 @@ class PinController:
 		if channel not in self.pin_objects[output]:
 			raise ValueError(f'setPin: invalid channel for output: {json.dumps({"output": output, "channel": channel})}')
 
-		if value < 0 or value > 1:
+		if value < 0 or value > 100:
 			raise ValueError(f'setPin: value out of bounds: {value}')
 
-		self.pin_objects[output][channel].ChangeDutyCycle(value*100)
+		self.pin_objects[output][channel].ChangeDutyCycle(value)
 		self.current_values[output][channel] = value
