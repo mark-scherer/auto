@@ -7,6 +7,19 @@ import json
 '''
 class PinController:
 	'''
+		pin_guide: dict of format: {output_name_1, {channel_name_1: pin_number_1, ...,}, ...}
+	'''
+	def __init__(self, pin_guide):
+		print(f'creating PinController: {pin_guide}')
+		self.pin_objects = copy.deepcopy(pin_guide)
+		self.current_values = copy.deepcopy(pin_guide)
+		for output, output_guide in pin_guide.items():
+			for channel, pin_number in output_guide.items():
+				self.pin_objects[output][channel] = None
+				self.current_values[output][channel] = 0
+		self.piSetup(pin_guide)
+
+	'''
 		pi: prep all channels & set to 0
 	'''
 	def piSetup(self, pin_guide):
@@ -18,19 +31,6 @@ class PinController:
 				self.pin_objects[output][channel] = GPIO.PWM(pin_number, 1000)
 				self.pin_objects[output][channel].start(0)
 				print(f'setup pin: {json.dumps({"output": output, "channel": channel})}')
-
-
-	'''
-		pin_guide: dict of format: {output_name_1, {channel_name_1: pin_number_1, ...,}, ...}
-	'''
-	def __init__(self, pin_guide):
-		self.pin_objects = copy.deepcopy(pin_guide)
-		self.current_values = copy.deepcopy(pin_guide)
-		for output, output_guide in pin_guide.items():
-			for channel, pin_number in output_guide.items():
-				self.pin_objects[output][channel] = None
-				self.current_values[output][channel] = 0
-		self.piSetup(pin_guide)
 
 
 	def getPinValues(self):
