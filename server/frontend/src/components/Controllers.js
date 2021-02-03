@@ -16,7 +16,7 @@ class StripController extends Component {
     this.outputName = props.outputName
     this.lastSelfUpdates = {}
     this.state = {
-      outputState
+      outputState : null
     }
   }
 
@@ -48,7 +48,7 @@ class StripController extends Component {
 
     const mergedOutputState = {}
     _.forEach(outputState, (selfIntensity, channel) => {
-      if (lastSelfUpdates[channel] && (new Date() - lastSelfUpdates[channel]) < SELF_UPDATE_HOLD) mergedOutputState[channel] = selfIntensity
+      if (this.lastSelfUpdates[channel] && (new Date() - this.lastSelfUpdates[channel]) < SELF_UPDATE_HOLD) mergedOutputState[channel] = selfIntensity
       else mergedOutputState[channel] = serverOutputState[channel]
     })
 
