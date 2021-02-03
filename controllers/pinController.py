@@ -17,6 +17,7 @@ class PinController:
 				GPIO.setup(pin_number, GPIO.OUT)
 				self.pin_objects[output][channel] = GPIO.PWM(pin_number, 1000)
 				self.pin_objects[output][channel].start(0)
+				print(f'setup pin: {json.dumps({"output": output, "channel": channel})}')
 
 
 	'''
