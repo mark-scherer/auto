@@ -3,7 +3,9 @@ import copy
 import json
 
 '''
-	class to handle actual interaction with device pins
+	base object to handle actual interaction with pins
+		- includes updates, statuses, sequence control
+		- scope controlled by "guides" passed into the constructor
 '''
 class PinController:
 	'''

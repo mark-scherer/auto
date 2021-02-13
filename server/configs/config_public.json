@@ -1,12 +1,27 @@
 {
 	"outputs": {
-		"room_rgb": {
+		"room": {
 			"red": 11,
 			"green": 12,
 			"blue": 13
 		},
-		"window_white": {
+		"window": {
 			"white": 15
+		}
+	},
+	"sequences": {
+		"cycle": {
+			"eligible_outputs": ["room", "window"],
+			"required_args": [],
+			"base_sequence_name": "CycleSequence",
+			"base_sequence_params": {
+				"period": 15,
+				"frequency": 10
+			},
+			"full_outputs_guide": {
+				"room": ["red", "green", "blue"],
+				"window": ["white"]
+			}
 		}
 	}
 }

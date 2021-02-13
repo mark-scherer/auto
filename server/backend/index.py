@@ -3,16 +3,19 @@ from urllib.parse import urlparse, unquote, parse_qs
 import os 
 import sys
 import json
+import traceback
 
 _dir = os.path.dirname(os.path.realpath(__file__))
 
+sys.path.append(os.path.join(_dir, '../../utils/'))
+import utils_misc
+
+# actual pin controller, including controls, sequnces, statuses... server index should only send requests
 sys.path.append(os.path.join(_dir, '../../controllers/'))
 import pinController as pinControl
-import scheduler as schedule
+from sequences import * 
 
-sys.path.append(os.path.join(_dir, '../../controllers/scripts'))
-import sunriseAlarm as sunrise
-
+# server index should be only access to configs by backend
 with open(os.path.join(_dir, '../configs/config_public.json')) as f:
     config_public = json.load(f)
 with open(os.path.join(_dir, '../configs/config_private.json')) as f:
@@ -20,9 +23,10 @@ with open(os.path.join(_dir, '../configs/config_private.json')) as f:
 CONFIG = {**config_public, **config_private}
 FRONTEND_PATH = os.path.join(_dir, '../frontend/build')
 
-# server globals (new handler instance created for each request)
+# server globals
 pinController = pinControl.PinController(CONFIG['outputs'])
 
+# new handler instance created for each request
 class myHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
@@ -45,8 +49,30 @@ class myHandler(SimpleHTTPRequestHandler):
         if parsed_path[1] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
             pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
+
+        elif parsed_path[1] == 'startSequence':
+            self.validateQuery(parsed_query, ['sequence', 'outputs'])
+            _sequence_name = parsed_query['sequence'][0]
+            if _sequence_name not in CONFIG['sequences']:
+                raise ValueError(f'unsupported sequence: {_sequence_name}')
+
+            _sequence_config = CONFIG['sequences'][_sequence_name]
+            self.validateQuery(parsed_query, _sequence_config['required_args'])
+            
+            _sequence_args = {
+                **_sequence_config['base_sequence_params'],
+                **utils_misc.dict_pick(parsed_query, _sequence_config['required_args']),
+                'outputs_guide': utils_misc.dict_pick(_sequence_config['full_outputs_guide'], parsed_query['outputs']),
+                'pin_controller': pinController
+            }
+
+            _sequence_class = globals()[_sequence_config['base_sequence_name']]
+            _sequence_inst = _sequence_class(**_sequence_args)
+            _sequence_inst.run()
+
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
+        
         self.sendResponseStart()         
 
     def do_status(self, parsed_path, parsed_query):
@@ -57,7 +83,7 @@ class myHandler(SimpleHTTPRequestHandler):
         self.sendResponseStart()
         self.wfile.write(json.dumps(response).encode('utf-8'))  
 
-    #Handler for the GET requests
+    # Handler for the GET requests
     def do_GET(self):
         try:
             parsed_request = urlparse(unquote(self.path))
@@ -74,6 +100,7 @@ class myHandler(SimpleHTTPRequestHandler):
                 super().do_GET()
         except Exception as error:
             print('exception handling request ({}): {}'.format(self.path, error))
+            traceback.print_exc()
             self.send_error(400, message="error: {}".format(error)) 
 
 port = CONFIG['server']['port']
