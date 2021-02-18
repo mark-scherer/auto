@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import traceback
+import uuid
 
 _dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -25,6 +26,8 @@ FRONTEND_PATH = os.path.join(_dir, '../frontend/build')
 
 # server globals
 pinController = pinControl.PinController(CONFIG['outputs'])
+sequenceGuide = {}
+sequenceBaseRequiredArgs = ['sequence', 'outputs']
 
 # new handler instance created for each request
 class myHandler(SimpleHTTPRequestHandler):
@@ -51,7 +54,7 @@ class myHandler(SimpleHTTPRequestHandler):
             pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
 
         elif parsed_path[1] == 'startSequence':
-            self.validateQuery(parsed_query, ['sequence', 'outputs'])
+            self.validateQuery(parsed_query, sequenceBaseRequiredArgs)
             _sequence_name = parsed_query['sequence'][0]
             if _sequence_name not in CONFIG['sequences']:
                 raise ValueError(f'unsupported sequence: {_sequence_name}')
@@ -59,16 +62,22 @@ class myHandler(SimpleHTTPRequestHandler):
             _sequence_config = CONFIG['sequences'][_sequence_name]
             self.validateQuery(parsed_query, _sequence_config['required_args'])
             
-            _sequence_args = {
+            _sequence_specific_args = {
                 **_sequence_config['base_sequence_params'],
                 **utils_misc.dict_pick(parsed_query, _sequence_config['required_args']),
-                'outputs_guide': utils_misc.dict_pick(_sequence_config['full_outputs_guide'], parsed_query['outputs']),
-                'pin_controller': pinController
+                'outputs_guide': utils_misc.dict_pick(_sequence_config['complete_outputs_guide'], parsed_query['outputs']),
             }
 
             _sequence_class = globals()[_sequence_config['base_sequence_name']]
-            _sequence_inst = _sequence_class(**_sequence_args)
-            _sequence_inst.run()
+            _sequence_id = uuid.uuid4().hex
+            sequenceGuide[_sequence_id] = {
+                'sequence_obj': _sequence_class(**_sequence_specific_args, pin_controller=pinController),
+                'sequence_info': {
+                    'name': _sequence_name,
+                    'args': _sequence_specific_args
+                }
+            }
+            sequenceGuide[_sequence_id]['sequence_obj'].run()
 
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
@@ -78,7 +87,9 @@ class myHandler(SimpleHTTPRequestHandler):
     def do_status(self, parsed_path, parsed_query):
         self.validateQuery(parsed_query, [])
         response = {
-            'intensities': pinController.getPinValues()
+            'intensities': pinController.getPinValues(),
+            'available_sequences': {name: {**utils_misc.dict_pick(info, ['name', 'description', 'eligible_outputs', 'required_args']), 'base_required_args': sequenceBaseRequiredArgs} for name, info in CONFIG['sequences'].items()},
+            'active_sequences': {sequence_id: sequence_entry['sequence_info'] for sequence_id, sequence_entry in sequenceGuide.items()}
         }
         self.sendResponseStart()
         self.wfile.write(json.dumps(response).encode('utf-8'))  

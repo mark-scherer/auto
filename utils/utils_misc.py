@@ -1,4 +1,6 @@
 import csv
+import threading
+import time
 
 def read_csv(filepath):
     with open(filepath) as csv_file:
@@ -21,3 +23,31 @@ def dict_pick(d, keys):
 
 def dict_omit(d, keys):
     return {x: d[x] for x in d if x not in keys}
+
+'''
+    Run specified function on loop on non-blocking thread
+        func must have 1st arg as elaspsed_time
+'''
+class NonBlockingLoopingFunc:
+    def __init__(self, timestep, func, *args):
+        self.timestep = timestep
+        self.func = func
+        self.args = args
+
+        self.running = None
+        self.start_time = time.time()
+        self.thread = threading.Thread(target = self._loopFunc)
+    
+    def _loopFunc(self):
+        while self.running:
+            self.elapsed_time = time.time() - self.start_time
+            self.func(self.elapsed_time, *self.args)
+            time.sleep(self.timestep)
+    
+    def start(self):
+        self.running = True
+        self.thread.start()
+
+    def stop(self):
+        self.running = False
+        self.thread.join()

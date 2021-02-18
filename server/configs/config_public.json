@@ -11,6 +11,8 @@
 	},
 	"sequences": {
 		"cycle": {
+			"name": "cycle",
+			"description": "cycle output channels together",
 			"eligible_outputs": ["room", "window"],
 			"required_args": [],
 			"base_sequence_name": "CycleSequence",
@@ -18,9 +20,37 @@
 				"period": 15,
 				"frequency": 10
 			},
-			"full_outputs_guide": {
+			"complete_outputs_guide": {
 				"room": ["red", "green", "blue"],
 				"window": ["white"]
+			}
+		},
+		"fastHsvCycle": {
+			"name": "fast color cycle",
+			"description": "quickly cycle rgb channels by hsv",
+			"eligible_outputs": ["room"],
+			"required_args": [],
+			"base_sequence_name": "HsvCycleSequence",
+			"base_sequence_params": {
+				"period": 30,
+				"frequency": 10
+			},
+			"complete_outputs_guide": {
+				"room": ["red", "green", "blue"]
+			}
+		},
+		"slowHsvCycle": {
+			"name": "slow color cycle",
+			"description": "slowly cycle rgb channels by hsv",
+			"eligible_outputs": ["room"],
+			"required_args": [],
+			"base_sequence_name": "HsvCycleSequence",
+			"base_sequence_params": {
+				"period": 90,
+				"frequency": 10
+			},
+			"complete_outputs_guide": {
+				"room": ["red", "green", "blue"]
 			}
 		}
 	}

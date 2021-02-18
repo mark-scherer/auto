@@ -5,7 +5,7 @@ import json
 '''
 	base object to handle actual interaction with pins
 		- includes updates, statuses, sequence control
-		- scope controlled by "guides" passed into the constructor
+		- output scope controlled by "guides" passed into the constructor
 '''
 class PinController:
 	'''

@@ -12,18 +12,30 @@
         3. add to frontend
 '''
 
-import time
 import math
-import threading
+import time
+import sys
+import os
+import colorsys
+
+_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(_dir, '../utils/'))
+import utils_misc
 
 class Sequence:
 
     # all kwargs are created as class vars
     def __init__(self, **kwargs):
+        
+        ''' class vars required to be overridden
+            self.required_args
+            self.timestep
+        '''
+
         base_required_args = ['pin_controller']
 
         # check that required args are provided
-        if not self.required_args or self.required_args == None:
+        if self.required_args == None:
             raise NotImplementedError(f'sequence {self.__class__.__name__} not fully implemented: missing self.required_args')
         all_required_args = list(self.required_args)
         all_required_args.extend(base_required_args)
@@ -42,16 +54,14 @@ class Sequence:
             raise NotImplementedError(f'sequence {self.__class__.__name__} not fully implemented: missing self.timestep')
         
         # trigger sequence loop in stoppable, non-blocking thread
-        self.sequence_run_inst = NonBlockingSequenceRun()
-        run_thread = threading.Thread(target = self.sequence_run_inst.run_sequence, args = (self._run, self.timestep))
-        run_thread.start()
+        self.run_loop = utils_misc.NonBlockingLoopingFunc(self.timestep, self._run)
+        self.run_loop.start()
 
         # demo of how to stop threads
         # time.sleep(5)
         # self._close()
 
     # private methods for iteration, should be overridden
-        # elapsed time is param b/c specified by NonBlockingSequenceRun inst
     def _run(self, elapsed_time):
         raise NotImplementedError(f'sequence {self.__class__.__name__} not fully implemented: missing self._run()')
 
@@ -59,9 +69,9 @@ class Sequence:
     def _updateChannel(self, output, channel, intensity):
         self.pin_controller.setPin(output, channel, intensity)
 
-    # private closesout methods for sequence kill/stop, should be overridden
+    # private closeout methods for sequence kill/stop, should be overridden
     def _close(self):
-        self.sequence_run_inst.stop()
+        self.run_loop.stop()
         print('stopped thread')
 
     # static method for initializing a zero'd sequenc state of all channel intensities
@@ -74,21 +84,6 @@ class Sequence:
                 state[output][ch] = 0
         return state
 
-# helper class to call sequence loop in a stoppable, non-blocking thread
-class NonBlockingSequenceRun:
-    def __init__(self):
-        self.running = True
-        self.start_time = time.time()
-    
-    def run_sequence(self, sequence_run_func, timestep):
-        while self.running:
-            self.elapsed_time = time.time() - self.start_time
-            sequence_run_func(self.elapsed_time)
-            time.sleep(timestep)
-
-    def stop(self):
-        self.running = False
-
 # cycle all channels together inputs together
 class CycleSequence(Sequence):
     def __init__(self, **kwargs):
@@ -98,10 +93,32 @@ class CycleSequence(Sequence):
         super().__init__(**kwargs)
         
         self.timestep = 1/kwargs['frequency']
-        # self.state = Sequence._initState(kwargs['outputs_guide'])
 
     def _run(self, elapsed_time):
         intensity = 100*(-0.5*math.cos((elapsed_time/self.period) * 2*math.pi) + 0.5)
         for output, channels in self.outputs_guide.items():
             for ch in channels:
                 self._updateChannel(output, ch, intensity)
+
+# control 3 channels according to cycling hsv converted to rgb
+    # only works for 3 channel outputs
+class HsvCycleSequence(Sequence):
+    def __init__(self, **kwargs):
+        
+        self.required_args = ['period', 'frequency', 'outputs_guide']
+        
+        # base class constructor checks for valid inputs, assignment involving inputs should occur after they've been validated
+        super().__init__(**kwargs)
+        
+        for output, channels in kwargs['outputs_guide'].items():
+            if len(channels) != 3:
+                raise ValueError(f'HsvCycleSequence outputs must have exactly 3 channels: {output} found to have {len(channels)}')
+        self.timestep = 1/kwargs['frequency']
+
+    def _run(self, elapsed_time):
+        raw_cycle_pos = elapsed_time/self.period
+        hue = raw_cycle_pos - math.floor(raw_cycle_pos)
+        rgb = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+        for output, channels in self.outputs_guide.items():
+            for i in range(0, len(channels)):
+                self._updateChannel(output, channels[i], 100*rgb[i])
