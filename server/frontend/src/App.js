@@ -27,7 +27,6 @@ class App extends Component {
     misc.makeRequest(full_url)
       .then(response => {
         const serverState = JSON.parse(response.body)
-        console.log(`App: got serverState : ${JSON.stringify({ serverState })}`)
         this.setState({
           serverState
         })
@@ -52,12 +51,30 @@ class App extends Component {
       serverState
     } = this.state
 
-    const serverIntensityMap = serverState && serverState.intensities ? serverState.intensities : null
+    // use intensity field to see all possible outputs
+    const serverIntensityOutputs = serverState && serverState.intensities ? Object.keys(serverState.intensities) : null
+    
     return (
       <div className="App">
       {
-        _.map(serverIntensityMap, (serverOutputState, outputName) => {
-          return <StripController outputName={outputName} serverOutputState={serverOutputState}/>
+        _.map(serverIntensityOutputs, outputName => {
+          
+          // narrow down state to just this output
+          const serverOutputState = {
+            intensities         : serverState.intensities[outputName],
+            availableSequences  : _.fromPairs(_.filter(_.toPairs(serverState.available_sequences), sequenceEntry => {
+              const sequenceInfo = sequenceEntry[1]
+              return sequenceInfo.eligible_outputs.length === 1 && sequenceInfo.eligible_outputs.includes(outputName)
+            })),
+            activeSequences     : _.fromPairs(_.filter(_.toPairs(serverState.active_sequences), sequenceEntry => {
+              const sequenceId = sequenceEntry[0]
+              const sequenceInfo = sequenceEntry[1]
+              const sequenceOutputs = Object.keys(sequenceInfo.args.outputs_guide)
+              return sequenceOutputs.length === 1 && sequenceOutputs.includes(outputName)
+            }))
+          }
+
+          return <StripController outputName={outputName} serverOutputState={serverOutputState} updateServerState={this.updateServerState}/>
         })
       }
       </div>

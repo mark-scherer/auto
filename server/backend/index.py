@@ -49,6 +49,8 @@ class myHandler(SimpleHTTPRequestHandler):
         if len(parsed_path) < 2:
             raise ValueError(f'incomplete path: /{"/".join(parsed_path)}')
 
+        response = None
+
         if parsed_path[1] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
             pinController.setPin(parsed_query['output'][0], parsed_query['channel'][0], float(parsed_query['value'][0]))
@@ -78,11 +80,24 @@ class myHandler(SimpleHTTPRequestHandler):
                 }
             }
             sequenceGuide[_sequence_id]['sequence_obj'].run()
+            response = {'sequence_id': _sequence_id}
+
+        elif parsed_path[1] == 'stopSequence':
+            self.validateQuery(parsed_query, ['sequence_id'])
+
+            sequence_id = parsed_query['sequence_id'][0]
+            if sequence_id not in sequenceGuide:
+                raise ValueError(f'sequence not found: {sequence_id}')
+
+            sequenceGuide[sequence_id]['sequence_obj'].stop()
+            del sequenceGuide[sequence_id]
 
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         
-        self.sendResponseStart()         
+        self.sendResponseStart() 
+        if response is not None:
+            self.wfile.write(json.dumps(response).encode('utf-8'))  
 
     def do_status(self, parsed_path, parsed_query):
         self.validateQuery(parsed_query, [])

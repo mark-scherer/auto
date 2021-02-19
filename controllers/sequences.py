@@ -7,9 +7,8 @@
         - specific entries the config should call one with params
 
     TO DO: 
-        1. add available and active sequences to status
-        2. make a few more sequences to prove design
-        3. add to frontend
+        1. add ability to stop runnin sequence
+        2. add sequences to frontend
 '''
 
 import math
@@ -60,6 +59,11 @@ class Sequence:
         # demo of how to stop threads
         # time.sleep(5)
         # self._close()
+    
+    # closeout method for sequence kill/stop, can be overridden
+    def stop(self):
+        self.run_loop.stop()
+        print('stopped thread')
 
     # private methods for iteration, should be overridden
     def _run(self, elapsed_time):
@@ -68,11 +72,6 @@ class Sequence:
     # private method for updating channel intensities
     def _updateChannel(self, output, channel, intensity):
         self.pin_controller.setPin(output, channel, intensity)
-
-    # private closeout methods for sequence kill/stop, should be overridden
-    def _close(self):
-        self.run_loop.stop()
-        print('stopped thread')
 
     # static method for initializing a zero'd sequenc state of all channel intensities
         # outputs guide format: {output_1: [channel_1, ...], ...}

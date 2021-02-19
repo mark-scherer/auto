@@ -18,9 +18,19 @@
   font-size: large;
 }
 
-.controls {
+.controls-container {
   margin: 25px;
   padding: 25px;
+}
+
+.controls-component {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.controls-button {
+  margin-left: 10px !important;
+  margin-right: 10px im !important;
 }
 
 @keyframes App-logo-spin {
