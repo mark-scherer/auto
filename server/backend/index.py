@@ -45,11 +45,19 @@ class myHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
+    def getStatus(self):
+        status = {
+            'intensities': pinController.getPinValues(),
+            'available_sequences': {name: {**utils_misc.dict_pick(info, ['name', 'description', 'eligible_outputs', 'required_args']), 'base_required_args': sequenceBaseRequiredArgs} for name, info in CONFIG['sequences'].items()},
+            'active_sequences': {sequence_id: sequence_entry['sequence_info'] for sequence_id, sequence_entry in sequenceGuide.items()}
+        }
+        return status
+
     def do_control(self, parsed_path, parsed_query):
         if len(parsed_path) < 2:
             raise ValueError(f'incomplete path: /{"/".join(parsed_path)}')
 
-        response = None
+        cmd_response = None
 
         if parsed_path[1] == 'updateIntensity':
             self.validateQuery(parsed_query, ['output', 'channel', 'value'])
@@ -80,7 +88,7 @@ class myHandler(SimpleHTTPRequestHandler):
                 }
             }
             sequenceGuide[_sequence_id]['sequence_obj'].run()
-            response = {'sequence_id': _sequence_id}
+            cmd_response = {'sequence_id': _sequence_id}
 
         elif parsed_path[1] == 'stopSequence':
             self.validateQuery(parsed_query, ['sequence_id'])
@@ -95,16 +103,17 @@ class myHandler(SimpleHTTPRequestHandler):
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
         
-        self.sendResponseStart() 
-        if response is not None:
-            self.wfile.write(json.dumps(response).encode('utf-8'))  
+        self.sendResponseStart()
+        response = {
+            'cmd_response': cmd_response,
+            'status': self.getStatus()
+        }
+        self.wfile.write(json.dumps(response).encode('utf-8'))  
 
     def do_status(self, parsed_path, parsed_query):
         self.validateQuery(parsed_query, [])
         response = {
-            'intensities': pinController.getPinValues(),
-            'available_sequences': {name: {**utils_misc.dict_pick(info, ['name', 'description', 'eligible_outputs', 'required_args']), 'base_required_args': sequenceBaseRequiredArgs} for name, info in CONFIG['sequences'].items()},
-            'active_sequences': {sequence_id: sequence_entry['sequence_info'] for sequence_id, sequence_entry in sequenceGuide.items()}
+            'status': self.getStatus()
         }
         self.sendResponseStart()
         self.wfile.write(json.dumps(response).encode('utf-8'))  

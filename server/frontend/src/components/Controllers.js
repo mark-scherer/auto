@@ -1,6 +1,7 @@
-import React, { Component } 					from 'react';
-import { Typography, Slider, Button } from '@material-ui/core';
-import _                              from 'lodash';
+import React, { Component } 					from 'react'
+import { Typography, Slider, Button } from '@material-ui/core'
+import _                              from 'lodash'
+import { v4 as uuid }                 from 'uuid'
 
 import * as config_public             from '../../../configs/config_public.json'
 import * as config_private            from '../../../configs/config_private.json'
@@ -14,7 +15,6 @@ import * as misc                      from '../utils/misc'
 */
 
 const CONFIG = Object.assign({}, config_public, config_private)
-const SELF_UPDATE_HOLD = 3000   // ms
 
 // control for single slider
 class SliderController extends Component {
@@ -55,7 +55,11 @@ class SequenceController extends Component{
       <div className="controls-component">
         {
           _.map(availableSequences, (sequenceConfig, sanitizedName) => {
-            const activeMatchIds = _.map(_.filter(_.toPairs(activeSequences), sequenceEntry => sequenceEntry[1].name === sanitizedName), match => match[0])
+            const activeMatchIds = _.chain(activeSequences)
+              .toPairs()
+              .filter(sequenceEntry => sequenceEntry[1].name === sanitizedName)
+              .map(match => match[0])
+              .value()
             const isActive = activeMatchIds.length > 0
             const sequenceId = isActive ? activeMatchIds[0] : null
             // const anyActive = Object.keys(activeSequences).length > 0
@@ -78,69 +82,64 @@ class StripController extends Component {
     super(props)
 
     this.outputName = props.outputName
-    this.lastSelfUpdate = -1
-    this.state = {
-      outputState : _.cloneDeep(props.serverOutputState)
+    this.lastCmdID = null
+  }
+
+  getCmdID() {
+    const id = uuid()
+    this.lastCmdID = id
+    return id
+  }
+
+  handleCmdResponse(response, cmd_id) {
+    const {
+      updateStatus
+    } = this.props
+
+    if (cmd_id === this.lastCmdID) {
+      const status = JSON.parse(response.body).status
+      updateStatus(status)
     }
   }
 
   updateIntensity(channel, value) {
-    const {
-      outputState
-    } = this.state
-
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/updateIntensity?output=${this.outputName}&channel=${channel}&value=${value}`
+    const cmd_id = this.getCmdID()
     misc.makeRequest(full_url)
-      // .then(response => console.log(`updated ${this.outputName}/${channel} intensity: ${JSON.stringify({ value })}`))
+      .then(response => this.handleCmdResponse(response, cmd_id))
       .catch(error => console.error(`error in updateIntensity: ${JSON.stringify({ outputName: this.outputName, channel, value, error: String(error) })}`))
-
-    // since slider updates happen in rapid succession, don't want server to update with stale value
-    outputState.intensities[channel] = value
-    this.lastSelfUpdate = new Date()
-
-    this.setState({
-      outputState
-    })
   }
 
-  startSequence(sanitizedSequenceName, arg2, arg3) {
+  startSequence(sanitizedSequenceName) {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/startSequence?outputs=${this.outputName}&sequence=${sanitizedSequenceName}`
+    const cmd_id = this.getCmdID()
     misc.makeRequest(full_url)
+      .then(response => this.handleCmdResponse(response, cmd_id))
       .catch(error => console.error(`error in startSequence: ${JSON.stringify({ outputName: this.outputName, sanitizedSequenceName, error: String(error) })}`))
   }
 
   stopSequence(sequenceId) {
     const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/stopSequence?outputs=${this.outputName}&sequence_id=${sequenceId}`
+    const cmd_id = this.getCmdID()
     misc.makeRequest(full_url)
-      .then(response => {
-        // let main App update server state here
-        this.props.updateServerState()
-        this.lastSelfUpdate = -1
-      })
+      .then(response => this.handleCmdResponse(response, cmd_id))
       .catch(error => console.error(`error in stopSequence: ${JSON.stringify({ outputName: this.outputName, sequenceId, error: String(error) })}`))
   }
 
   toggleSequence(sanitizedSequenceName, sequenceId, newState) {
-    console.log(`toggleSequence called with ${JSON.stringify({sanitizedSequenceName, newState})}`)
     if (newState) this.startSequence(sanitizedSequenceName)
     else this.stopSequence(sequenceId)
   }
 
   render() {
     const {
-      outputState
-    } = this.state
-
-    const {
-      serverOutputState
+      outputStatus
     } = this.props
-
-    const mergedOutputState = (new Date() - this.lastSelfUpdate) < SELF_UPDATE_HOLD ? outputState : serverOutputState
 
     const sequenceControl = (
       <SequenceController 
-        availableSequences={mergedOutputState.availableSequences} 
-        activeSequences={mergedOutputState.activeSequences} 
+        availableSequences={outputStatus.availableSequences} 
+        activeSequences={outputStatus.activeSequences} 
         onButtonClick={this.toggleSequence.bind(this)}
       />
     )
@@ -148,7 +147,7 @@ class StripController extends Component {
     const sliderControl = (
       <div className="controls-component" >
         {
-          _.map(mergedOutputState.intensities, (intensity, channel) => {
+          _.map(outputStatus.intensities, (intensity, channel) => {
             const slider_id = `colorControl-{this.outputName}-{this.channel}`
             const slider_onchange = (event, newValue) => { this.updateIntensity(channel, newValue) }
             return (
