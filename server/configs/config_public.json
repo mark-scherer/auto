@@ -53,12 +53,63 @@
 				"room": ["red", "green", "blue"]
 			}
 		},
+		"roomSleep": {
+			"name": "sleep",
+			"description": "sleep light timer",
+			"eligible_outputs": ["room"],
+			"required_args": [],
+			"base_sequence_name": "FixedStatusesSequence",
+			"base_sequence_params": {
+				"total_time": 1800,
+				"frequency": 10,
+				"status_points": [
+					{
+						"room": {
+							"red": 0,
+							"green": 0,
+							"blue": 100
+						}
+					},
+					{
+						"room": {
+							"red": 50,
+							"green": 0,
+							"blue": 100
+						}
+					},
+					{
+						"room": {
+							"red": 100,
+							"green": 0,
+							"blue": 0
+						}
+					},
+					{
+						"room": {
+							"red": 100,
+							"green": 0,
+							"blue": 0
+						}
+					},
+					{
+						"room": {
+							"red": 0,
+							"green": 0,
+							"blue": 0
+						}
+					}
+				]
+			},
+			"complete_outputs_guide": {
+				"room": ["red", "green", "blue"]
+			}
+		},
 		"roomOff": {
 			"name": "off",
 			"description": "turn off",
 			"eligible_outputs": ["room"],
 			"required_args": [],
-			"base_sequence_name": "StateLinearSequence",
+			"base_sequence_name": "FixedRateSequence",
 			"base_sequence_params": {
 				"rate": 400,
 				"frequency": 20,
@@ -79,7 +130,7 @@
 			"description": "turn on",
 			"eligible_outputs": ["window"],
 			"required_args": [],
-			"base_sequence_name": "StateLinearSequence",
+			"base_sequence_name": "FixedRateSequence",
 			"base_sequence_params": {
 				"rate": 400,
 				"frequency": 20,
@@ -98,7 +149,7 @@
 			"description": "turn off",
 			"eligible_outputs": ["window"],
 			"required_args": [],
-			"base_sequence_name": "StateLinearSequence",
+			"base_sequence_name": "FixedRateSequence",
 			"base_sequence_params": {
 				"rate": 400,
 				"frequency": 20,

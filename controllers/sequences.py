@@ -121,8 +121,8 @@ class HsvCycleSequence(Sequence):
             for i in range(0, len(channels)):
                 self._updateChannel(output, channels[i], 100*rgb[i])
 
-# linearly move output to given state
-class StateLinearSequence(Sequence):
+# change outputs to specific final state over constant change =rate
+class FixedRateSequence(Sequence):
     def __init__(self, **kwargs):
         self.required_args = ['rate', 'frequency', 'outputs_guide', 'pin_controller', 'end_status', 'stop_sequence_func']
 
@@ -144,4 +144,37 @@ class StateLinearSequence(Sequence):
         if not made_adjustment:
             self.stop_sequence_func()
 
+# change outputs to a series of specified states over specified interval of time
+class FixedStatusesSequence(Sequence):
+    def __init__(self, **kwargs):
+        self.required_args = ['total_time', 'frequency', 'outputs_guide', 'pin_controller', 'status_points', 'stop_sequence_func']
 
+        # base class constructor checks for valid inputs, assignment involving inputs should occur after they've been validated
+        super().__init__(**kwargs)
+
+        if type(self.status_points) is not list:
+            raise ValueError(f'FixedStatusesSequence input status_points must be list, found: {type(self.status_points)}')
+        if len(self.status_points) < 2:
+            raise ValueError(f'FixedStatusesSequence input status_points must have length 2 or greater (start and end points), found: {len(self.status_points)}')
+        self.timestep = 1/kwargs['frequency']
+    
+    def _run(self, elapsed_time):
+        if elapsed_time >= self.total_time:
+            # assert final state
+            for output, channels in self.outputs_guide.items():
+                for channel in channels:
+                    final_value = self.status_points[len(self.status_points) - 1][output][channel]
+                    self._updateChannel(output, channel, final_value)
+            self.stop_sequence_func()
+        else:
+            sequence_progress = elapsed_time / self.total_time * (len(self.status_points) - 1)
+            current_leg = math.floor(sequence_progress)
+            leg_progress = sequence_progress - current_leg
+
+            for output, channels in self.outputs_guide.items():
+                for channel in channels:
+                    leg_start_value = self.status_points[current_leg][output][channel]
+                    leg_end_value = self.status_points[current_leg + 1][output][channel]
+                    diff = leg_end_value - leg_start_value
+                    current_value = leg_start_value + (diff * leg_progress)
+                    self._updateChannel(output, channel, current_value)
