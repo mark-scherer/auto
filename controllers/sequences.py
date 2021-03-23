@@ -16,6 +16,8 @@ import time
 import sys
 import os
 import colorsys
+import copy
+import json 
 
 _dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(_dir, '../utils/'))
@@ -55,15 +57,11 @@ class Sequence:
         # trigger sequence loop in stoppable, non-blocking thread
         self.run_loop = utils_misc.NonBlockingLoopingFunc(self.timestep, self._run)
         self.run_loop.start()
-
-        # demo of how to stop threads
-        # time.sleep(5)
-        # self._close()
     
     # closeout method for sequence kill/stop, can be overridden
+        # from Sequence._run MUST call passed stop_sequence_func() to close sequence properly! Main server must delete sequence from active list!
     def stop(self):
         self.run_loop.stop()
-        print('stopped thread')
 
     # private methods for iteration, should be overridden
     def _run(self, elapsed_time):
@@ -72,6 +70,9 @@ class Sequence:
     # private method for updating channel intensities
     def _updateChannel(self, output, channel, intensity):
         self.pin_controller.setPin(output, channel, intensity)
+
+    def _getChannelValue(self, output, channel):
+        return self.pin_controller.getPinValues()[output][channel]
 
     # static method for initializing a zero'd sequenc state of all channel intensities
         # outputs guide format: {output_1: [channel_1, ...], ...}
@@ -90,7 +91,6 @@ class CycleSequence(Sequence):
         
         # base class constructor checks for valid inputs, assignment involving inputs should occur after they've been validated
         super().__init__(**kwargs)
-        
         self.timestep = 1/kwargs['frequency']
 
     def _run(self, elapsed_time):
@@ -103,7 +103,6 @@ class CycleSequence(Sequence):
     # only works for 3 channel outputs
 class HsvCycleSequence(Sequence):
     def __init__(self, **kwargs):
-        
         self.required_args = ['period', 'frequency', 'outputs_guide']
         
         # base class constructor checks for valid inputs, assignment involving inputs should occur after they've been validated
@@ -121,3 +120,28 @@ class HsvCycleSequence(Sequence):
         for output, channels in self.outputs_guide.items():
             for i in range(0, len(channels)):
                 self._updateChannel(output, channels[i], 100*rgb[i])
+
+# linearly move output to given state
+class StateLinearSequence(Sequence):
+    def __init__(self, **kwargs):
+        self.required_args = ['rate', 'frequency', 'outputs_guide', 'pin_controller', 'end_status', 'stop_sequence_func']
+
+        # base class constructor checks for valid inputs, assignment involving inputs should occur after they've been validated
+        super().__init__(**kwargs)
+        self.timestep = 1/kwargs['frequency']
+        self.cycle_rate = kwargs['rate']/kwargs['frequency'] # rate should be in value units (0-100) per second
+
+    def _run(self, elapsed_time):
+        made_adjustment = False
+        for output, channels in self.outputs_guide.items():
+            for channel in channels:
+                end_value = self.end_status[output][channel]
+                current_value = self._getChannelValue(output, channel)
+                adjustment = utils_misc.clamp(end_value - current_value, -1*self.cycle_rate, self.cycle_rate)
+                self._updateChannel(output, channel, current_value + adjustment)
+                if adjustment != 0:
+                    made_adjustment = True
+        if not made_adjustment:
+            self.stop_sequence_func()
+
+

@@ -1,6 +1,8 @@
 import csv
 import threading
 import time
+import json
+import traceback
 
 def read_csv(filepath):
     with open(filepath) as csv_file:
@@ -24,6 +26,9 @@ def dict_pick(d, keys):
 def dict_omit(d, keys):
     return {x: d[x] for x in d if x not in keys}
 
+def clamp(value, _min, _max):
+    return min(max(value, _min), _max)
+
 '''
     Run specified function on loop on non-blocking thread
         func must have 1st arg as elaspsed_time
@@ -39,10 +44,16 @@ class NonBlockingLoopingFunc:
         self.thread = threading.Thread(target = self._loopFunc)
     
     def _loopFunc(self):
-        while self.running:
-            self.elapsed_time = time.time() - self.start_time
-            self.func(self.elapsed_time, *self.args)
-            time.sleep(self.timestep)
+        try:
+            while self.running:
+                self.elapsed_time = time.time() - self.start_time
+                self.func(self.elapsed_time, *self.args)
+                time.sleep(self.timestep)
+        except Exception as error:
+            print(f"exception in sequence loop: {json.dumps({'func': self.func.__name__, 'error': str(error)})}")
+            traceback.print_exc()
+            self.stop()
+
     
     def start(self):
         self.running = True
@@ -50,4 +61,3 @@ class NonBlockingLoopingFunc:
 
     def stop(self):
         self.running = False
-        self.thread.join()
