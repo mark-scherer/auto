@@ -61,7 +61,7 @@
 			"base_sequence_name": "FixedStatusesSequence",
 			"base_sequence_params": {
 				"total_time": 1800,
-				"frequency": 10,
+				"frequency": 1,
 				"status_points": [
 					{
 						"room": {

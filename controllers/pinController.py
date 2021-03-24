@@ -8,6 +8,8 @@ import json
 		- output scope controlled by "guides" passed into the constructor
 '''
 class PinController:
+	pwm_freq = 100 # much below 75 and colors flicker
+
 	'''
 		pin_guide: dict of format: {output_name_1, {channel_name_1: pin_number_1, ...,}, ...}
 	'''
@@ -29,7 +31,7 @@ class PinController:
 		for output, output_guide in pin_guide.items():
 			for channel, pin_number in output_guide.items():
 				GPIO.setup(pin_number, GPIO.OUT)
-				self.pin_objects[output][channel] = GPIO.PWM(pin_number, 1000)
+				self.pin_objects[output][channel] = GPIO.PWM(pin_number, PinController.pwm_freq)
 				self.pin_objects[output][channel].start(0)
 
 	def getPinValues(self):
