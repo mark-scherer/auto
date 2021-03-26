@@ -46,8 +46,8 @@
 			"required_args": [],
 			"base_sequence_name": "HsvCycleSequence",
 			"base_sequence_params": {
-				"period": 90,
-				"frequency": 5
+				"period": 120,
+				"frequency": 10
 			},
 			"complete_outputs_guide": {
 				"room": ["red", "green", "blue"]
