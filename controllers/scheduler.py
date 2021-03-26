@@ -36,8 +36,14 @@ class Scheduler:
             'job_kwargs': job_kwargs
         }
 
+    def unschedule_job(self, job_id):
+        if job_id not in self.jobs:
+            raise ValueError(f'Scheduler.unschedule_job: job_id not found: {job_id}')
+            
+        self.scheduler.remove_job(job_id)
+        del self.jobs[job_id]
+
     def get_scheduled_jobs(self):
         for job_id, job_info in self.jobs.items():
             job_info['next_run_time'] = str(self.scheduler.get_job(job_id).next_run_time)
-        # return copy.deepcopy(self.jobs)
         return self.jobs

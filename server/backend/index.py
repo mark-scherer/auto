@@ -143,7 +143,13 @@ class myHandler(SimpleHTTPRequestHandler):
             self.validateQuery(parsed_query, ['trigger_time'])
 
             trigger_datetime_str = parsed_query['trigger_time'][0]
-            job = scheduler.schedule_job(trigger_datetime_str, self.startSequence, full_sequence_info['sequence_name'], [full_sequence_info])
+            scheduler.schedule_job(trigger_datetime_str, self.startSequence, full_sequence_info['sequence_name'], [full_sequence_info])
+
+        elif parsed_path[1] == 'unscheduleSequence':
+            self.validateQuery(parsed_query, ['job_id'])
+
+            job_id = parsed_query['job_id'][0]
+            scheduler.unschedule_job(job_id)
 
         else:
             raise ValueError(f'unsupported mode: {parsed_query["mode"]}')
