@@ -104,6 +104,16 @@ class myHandler(SimpleHTTPRequestHandler):
         return sequence_info
 
     def startSequence(self, full_sequence_info):
+        # stop any other sequences on output
+        to_stop = {}
+        for sequence_output in full_sequence_info['sequence_args']['outputs_guide']:
+            for other_sequence_id, other_sequence_entry in sequenceGuide.items():
+                if sequence_output in other_sequence_entry['sequence_info']['sequence_args']['outputs_guide']:
+                    to_stop[other_sequence_id] = True
+
+        for other_sequence_id in to_stop.keys():
+            self.stopSequence(other_sequence_id)
+
         sequenceGuide[full_sequence_info['sequence_id']] = {
             'sequence_obj': full_sequence_info['sequence_class'](**full_sequence_info['sequence_args'], **full_sequence_info['sequence_nonrecordable_args']),
             'sequence_info': utils_misc.dict_pick(full_sequence_info, ['sequence_name', 'sequence_args'])
