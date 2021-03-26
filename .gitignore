@@ -1,4 +1,5 @@
 server/configs/config_private.json
+server/frontend/build
 
 # misc to ignore
 *__pycache__*
