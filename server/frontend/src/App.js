@@ -82,11 +82,22 @@ class App extends Component {
             })
             .fromPairs()
             .value()
+
+          const scheduledSequences = _.chain(status.scheduled_sequences)
+            .toPairs()
+            .filter(jobEntry => {
+              const sequenceInfo = jobEntry[1].sequence_config
+              const sequenceOutputs = Object.keys(sequenceInfo.sequence_args.outputs_guide)
+              return sequenceOutputs.length === 1 && sequenceOutputs.includes(outputName)
+            })
+            .fromPairs()
+            .value()
           
           const outputStatus = {
             intensities         : status.intensities[outputName],
             availableSequences, 
-            activeSequences
+            activeSequences,
+            scheduledSequences
           }
 
           return <StripController outputName={outputName} outputStatus={outputStatus} updateStatus={this.updateStatus}/>

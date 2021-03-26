@@ -1,5 +1,7 @@
 import React, { Component } 					from 'react'
 import { Typography, Slider, Button } from '@material-ui/core'
+import { TableContainer, Table, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { Paper }                      from '@material-ui/core'
 import _                              from 'lodash'
 import { v4 as uuid }                 from 'uuid'
 
@@ -16,7 +18,11 @@ import * as misc                      from '../utils/misc'
 
 const CONFIG = Object.assign({}, config_public, config_private)
 
-// control for single slider
+/*
+  Component for direct slider for a given output
+    Handles multiple channels
+  Subcomponent of StripController (or other higher level output controllers)
+*/
 class SliderController extends Component {
   constructor(props) {
     super(props)
@@ -39,11 +45,15 @@ class SliderController extends Component {
   }
 }
 
-// control for multiple sequences
-class SequenceController extends Component{
+/*
+  Component for sequence control for a given output
+  Subcomponent of StripController (or other higher level output controllers)
+*/
+class SequenceController extends Component {
   constructor(props) {
     super(props)
   }
+
   render() {
     const {
       availableSequences,
@@ -77,6 +87,74 @@ class SequenceController extends Component{
   }
 }
 
+/*
+  Component for scheduled sequence control for a given output
+  Subcomponent of StripController (or other higher level output controllers)
+*/
+class ScheduleController extends Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    const {
+      scheduledSequences,
+      availableSequences
+    } = this.props
+
+    const sortedScheduledSequences = _.chain(scheduledSequences)
+      .toPairs()
+      .map(job_entry => {
+        const job_time = new Date()
+        job_time.setUTCHours(job_entry[1].trigger_time.split(':')[0])
+        job_time.setUTCMinutes(job_entry[1].trigger_time.split(':')[1])
+        job_time.setUTCSeconds(job_entry[1].trigger_time.split(':')[2])
+        const job_sort_value = 60*60*job_time.getHours() + 60*job_time.getMinutes() + job_time.getSeconds()
+
+        return {
+          job_id: job_entry[0],
+          job_time,
+          job_sort_value,
+          ...job_entry[1]
+        }
+      })
+      .sortBy(job => job.job_sort_value)
+      .value()
+      console.log(JSON.stringify({ sortedScheduledSequences }))
+
+    return (
+      <div className='controls-component'>
+        <TableContainer component={Paper}>
+          <Table size="small">
+            <TableBody>
+              {
+                _.map(sortedScheduledSequences, job => {
+                  const sequence_name = job.sequence_config.sequence_name
+                  const sequence_config = availableSequences[sequence_name]
+    
+                  return (
+                    <TableRow>
+                      <TableCell>
+                        {job.job_time.toLocaleTimeString()}
+                      </TableCell>
+                      <TableCell>
+                        {sequence_config.name}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              }
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    )
+  }
+}
+
+/*
+  Parent control component for a given strip output
+*/
 class StripController extends Component {
   constructor(props) {
     super(props)
@@ -139,7 +217,7 @@ class StripController extends Component {
     const sequenceControl = (
       <SequenceController 
         availableSequences={outputStatus.availableSequences} 
-        activeSequences={outputStatus.activeSequences} 
+        activeSequences={outputStatus.activeSequences}
         onButtonClick={this.toggleSequence.bind(this)}
       />
     )
@@ -158,12 +236,20 @@ class StripController extends Component {
       </div>
     )
 
+    const scheduleControl = (
+      <ScheduleController
+      scheduledSequences={outputStatus.scheduledSequences}
+        availableSequences={outputStatus.availableSequences} 
+      />
+    )
+
     return (
       <div className="controls-container">
         <Typography variant="h6">{this.outputName}</Typography>
         <div className="colorControls">
           {sequenceControl}
           {sliderControl}
+          {scheduleControl}
         </div>
       </div>
     );
