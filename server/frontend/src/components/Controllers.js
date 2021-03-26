@@ -57,7 +57,7 @@ class SequenceController extends Component{
           _.map(availableSequences, (sequenceConfig, sanitizedName) => {
             const activeMatchIds = _.chain(activeSequences)
               .toPairs()
-              .filter(sequenceEntry => sequenceEntry[1].name === sanitizedName)
+              .filter(sequenceEntry => sequenceEntry[1].sequence_name === sanitizedName)
               .map(match => match[0])
               .value()
             const isActive = activeMatchIds.length > 0

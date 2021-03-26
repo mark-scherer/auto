@@ -77,7 +77,7 @@ class App extends Component {
             .toPairs()
             .filter(sequenceEntry => {
               const sequenceInfo = sequenceEntry[1]
-              const sequenceOutputs = Object.keys(sequenceInfo.args.outputs_guide)
+              const sequenceOutputs = Object.keys(sequenceInfo.sequence_args.outputs_guide)
               return sequenceOutputs.length === 1 && sequenceOutputs.includes(outputName)
             })
             .fromPairs()
