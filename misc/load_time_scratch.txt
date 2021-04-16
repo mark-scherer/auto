@@ -161,7 +161,7 @@
         - unclear if other frameworks are similar
     3. python's SimpleHTTPRequestHandler does not support compression
         - apparantly is out of its scope
-        - had to use random package
+        - had to use random package that added it
     
 
 
