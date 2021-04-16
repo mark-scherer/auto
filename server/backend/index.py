@@ -1,4 +1,5 @@
 from http.server import SimpleHTTPRequestHandler,HTTPServer
+from httpcompressionserver import HTTPCompressionRequestHandler
 from urllib.parse import urlparse, unquote, parse_qs
 import os 
 import sys
@@ -34,7 +35,7 @@ sequenceBaseRequiredArgs = ['sequence', 'outputs']
 scheduler = Scheduler()
 
 # new handler instance created for each request
-class myHandler(SimpleHTTPRequestHandler):
+class myHandler(HTTPCompressionRequestHandler):
 
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server, directory=FRONTEND_PATH)

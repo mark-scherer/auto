@@ -1,0 +1,178 @@
+##### load time scratch #####
+- issue: frontend takes long time to load
+    - normally  : ~1s
+    - sometimes : >2 mins (usually seen on phone)
+
+- investigation
+    - used chrome devtools on laptop to time initial page load
+    - results (chronologically):
+        1. 192.168.9.193
+            - type      : document
+            - initator  : other
+            - size      : 563 B
+            - time      : 17 ms
+            - headers   : GET to http://192.168.0.193:8080/
+            - response  : just build/index.html (includes script element: '/static/js/main.00a80f56.js')
+        2. main.baf93f1b.css
+            - type      : stylesheet
+            - initator  : index
+            - size      : 905 B
+            - time      : 9 ms
+            - headers   : GET to http://192.168.0.193:8080/static/css/main.baf93f1b.css
+            - response  : all css styling
+        3. main.00a80f56.js
+            - type      : script
+            - initator  : index.html
+            - size      : 4.2 MB
+            - time      : 856 ms (97% was content download)
+            - headers   : GET to http://192.168.0.193:8080/static/js/main.00a80f56.js (no gzip)
+            - response  : all js code (143k lines)
+        4. status
+            - type      : fetch
+            - initator  : request.js (request lib)
+            - size      : 3.7 kB
+            - time      : 19 ms
+            - headers   : GET to http://192.168.0.193:8080/status (inital status fetch)
+            - response  : status
+        5. favicon.ico
+            - type      : vnd.microsoft.icon
+            - initator  : other
+            - size      : 25 kB
+            - time      : 27 ms
+            - headers   : GET to http://192.168.0.193:8080/favicon.ico
+            - response  : devtools doesn't show but build/favicon.ico is the react logo icon (don't see on page)
+    <- obvious slowdown is downloading built js code
+        <- its HUGE
+            <- why is js code so big?
+            <- why is it uncompress?
+
+- what process generated js code
+    - initated by: npm build
+        - package.json shows this runs: node scripts/build.js
+        - scripts/build.js:
+            1. loads lots of packages
+            2. does some prep: checks configs, measures filesizes, empties build dir
+            3. builds
+                3.1. runs webpack.run() <- compiles webpack config
+                3.2. prints errors, stats, info about publishing depending on assumed root path, info about deploying
+        <- webpack compilation is almost entire process
+    - configs/webpack.config.prod.js notes
+        - throws error if config/env's NODE_ENV !== 'production'
+            - build.js sets this as prod at start
+        - modules (all have matching npm packages):
+            1. eslint 
+                - popular js linter
+            2. url loader
+                - converts imported assets <10 kB into static/media/ assets
+                    - don't seem to have any
+            3. babel
+                - js 'transpiler'
+                    - converts code to run in specific js environment
+            4. other css, json, file loaders
+    - what controls what codebase is included in webpack compilation?
+        - webpack entry:
+            1. ./polyfills
+                - polyfill: code that implements features on browsers that don't support it natively
+                - included ones defined in config/polyfills.js
+                - a few, probably necessary features
+            2. src/index.js
+                - imports: react, react-dom
+                - imports: ./App, 
+                - imports: ./index.css
+                - runs react entry point ReactDOM.render(<App/>)
+            <- App.js is custome main page
+
+- how to optimize js code
+    - baseline
+        ls -lah build/static/js/main.<hash>.js
+        <- started at 4.1M
+    1. minify and other webpack benefits
+        - added 'mode: production' to webpack config
+        <- did not change report post-gzip file size
+            <- did not change filesize
+        <- tried upgrading to latest webpack, maybe mode isn't supported
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm ls webpack
+            frontend@0.1.0 /home/pi/Documents/auto/server/frontend
+            └── webpack@1.14.0 
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm uninstall wepback
+            ...
+            npm i webpack
+            ...
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm ls webpack
+            frontend@0.1.0 /home/pi/Documents/auto/server/frontend
+            └── webpack@1.14.0 
+        <- hmm, still have webpack 1.14.0... try manually assigning?
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm uninstall wepback
+            ...
+            pi@raspberrypi:~/Documents/auto/server/frontend $ cat package.json | grep 'webpack'
+            ...
+                "webpack": "^1.14.0",
+            ...
+                <- webpack 1.14.0 still specified in package.json
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm i webpack@5.33.2
+            pi@raspberrypi:~/Documents/auto/server/frontend $ npm ls webpack
+            frontend@0.1.0 /home/pi/Documents/auto/server/frontend
+            └── (empty)
+                <- why empty?
+            pi@raspberrypi:~/Documents/auto/server/frontend $ cat package.json | grep 'webpack'
+            ...
+                "webpack": "^5.33.2",
+            ...
+                <- seems correct
+        <- webpack build issue
+            Error: Cannot find module 'webpack/lib/removeAndDo'
+            <- seems as if error is with extract-text-webpack-plugin, need to upgrade to match webpack 4+
+                - upgrading 1.0.1 to 3.0.2
+                <- did not fix
+            <- might have to switch to mini-css-extract-plugin
+                - extract-text-webpack-plugin moves all css out of inline and too a specific css file
+                - mini-css-extract-plugin extracts css into one css file per js file
+    <- STOP: probably easier to keep things as react reject expected, then add minified ourselves
+        - reverting
+            1. rsync'd local (not modified) to pi
+            2. wiped node_modules/, reran npm i
+            3. reverted changes to config/webpack.config.prod.js
+            <- built! back at 4.1 MB
+        - wepback 1.14.0 docs: https://github.com/webpack/docs/wiki/contents
+            - references optimization thru cli option: --optimize-minimize
+                - references this uses 'new webpack.optimize.UglifyJsPlugin()'
+        - implementing UglifyJsPlugin
+            - UglifyJsPlugin npm docs mention webpack <4.0.0 contain UglifyJsPlugin v0.4.6 as alias webpack.optimize.UglifyJsPlugin
+                - 0.4.6 docs
+                    - install: --save-dev
+                        <- must all: npm i uglify-js
+        <- can't seem to get UglifyJsPlugin to reduce build sizes
+
+- how to get server to compress js code for transit
+    - is just requesting a static asset, should be in domain of server to compress
+    - static assets handled by SimpleHTTPRequestHandler.do_GET() called by myHandler.do_GET()
+    <- compression not supported by SimpleHTTPRequestHandler
+    - compression supposedly supported by httpcompressionserver (https://github.com/PierreQuentel/httpcompressionserver)
+        <- tries to compress if request Accept-Encoding header includes gzip or deflate
+            <- our request includes both
+    <- worked! js code response size now matched reported zipped size by build
+
+- SUMMARY
+    1. Could not get webpack production enviroment to properly minimize code
+        - ejecting react bound us to really old verison of webpack with almost no support
+        - unclear if optimization would have been easier within react
+    2. React produces ALOT of code
+        - this small frontend produces 140k lines
+        - unclear if other frameworks are similar
+    3. python's SimpleHTTPRequestHandler does not support compression
+        - apparantly is out of its scope
+        - had to use random package
+    
+
+
+
+
+            
+            
+
+
+
+
+
+
+
