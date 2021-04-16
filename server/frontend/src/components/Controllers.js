@@ -120,7 +120,6 @@ class ScheduleController extends Component {
       })
       .sortBy(job => job.job_sort_value)
       .value()
-      console.log(JSON.stringify({ sortedScheduledSequences }))
 
     return (
       <div className='controls-component'>

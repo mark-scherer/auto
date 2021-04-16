@@ -1,4 +1,4 @@
-from http.server import SimpleHTTPRequestHandler,HTTPServer
+from http.server import HTTPServer
 from httpcompressionserver import HTTPCompressionRequestHandler
 from urllib.parse import urlparse, unquote, parse_qs
 import os 
