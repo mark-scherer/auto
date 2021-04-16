@@ -1,7 +1,12 @@
 import React, { Component } 					from 'react'
-import { Typography, Slider, Button } from '@material-ui/core'
+import { Typography, Slider, Button, Icon } from '@material-ui/core'
 import { TableContainer, Table, TableBody, TableRow, TableCell } from '@material-ui/core'
+import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
+import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
+import { TextField }                  from '@material-ui/core'
 import { Paper }                      from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import _                              from 'lodash'
 import { v4 as uuid }                 from 'uuid'
 
@@ -94,12 +99,29 @@ class SequenceController extends Component {
 class ScheduleController extends Component {
   constructor(props) {
     super(props)
+
+    this.outputName = props.outputName
+
+    const {
+      availableSequences
+    } = props
+
+    this.state = {
+      selectedSequence: Object.keys(availableSequences)[0],
+      selectedTime: '07:00'
+    }
   }
 
   render() {
     const {
+      selectedSequence,
+      selectedTime
+    } = this.state
+
+    const {
       scheduledSequences,
-      availableSequences
+      availableSequences,
+      scheduleSequence
     } = this.props
 
     const sortedScheduledSequences = _.chain(scheduledSequences)
@@ -146,6 +168,64 @@ class ScheduleController extends Component {
             </TableBody>
           </Table>
         </TableContainer>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            add sequence
+          </AccordionSummary>
+          <AccordionDetails>
+            <Table size="small">
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                      <FormControl>
+                        <InputLabel id="demo-simple-select-label">sequence</InputLabel>
+                        <Select
+                          value={selectedSequence}
+                          onChange={(event) => { this.setState({ selectedSequence: event.target.value }) }}
+                        >
+                          {
+                            _.map(availableSequences, (sequence_info, sequence) => {
+                              return (
+                                <MenuItem value={sequence}>{sequence}</MenuItem>
+                              )
+                            })
+                          }
+                        </Select>
+                      </FormControl>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
+                      <form noValidate>
+                        <TextField
+                          label="time"
+                          type="time"
+                          defaultValue={selectedTime}
+                          InputLabelProps={{ shrink: true }}
+                          inputProps={{
+                            step: 300, // 5 min
+                          }}
+                          onChange={(event) => this.setState({ selectedTime: event.target.value })}
+                        />
+                      </form>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        endIcon={<ArrowForwardIosIcon/>}
+                        size="small"
+                        style={{margin: '5px'}}
+                        onClick={() => { scheduleSequence(this.state.selectedSequence, `${this.state.selectedTime}`) }}
+                      >
+                        schedule recurring sequence
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </AccordionDetails>
+        </Accordion>
       </div>
     )
   }
@@ -208,6 +288,14 @@ class StripController extends Component {
     else this.stopSequence(sequenceId)
   }
 
+  scheduleSequence(selectedSequence, selectedTime) {
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/scheduleSequence?outputs=${this.outputName}&sequence=${selectedSequence}&trigger_time=${selectedTime}`
+    const cmd_id = this.getCmdID()
+    misc.makeRequest(full_url)
+      .then(response => this.handleCmdResponse(response, cmd_id))
+      .catch(error => console.error(`error in scheduleSequence: ${JSON.stringify({ outputName: this.outputName, selectedSequence, selectedTime, error: String(error) })}`))
+  }
+
   render() {
     const {
       outputStatus
@@ -237,8 +325,9 @@ class StripController extends Component {
 
     const scheduleControl = (
       <ScheduleController
-      scheduledSequences={outputStatus.scheduledSequences}
-        availableSequences={outputStatus.availableSequences} 
+        scheduledSequences={outputStatus.scheduledSequences}
+        availableSequences={outputStatus.availableSequences}
+        scheduleSequence={this.scheduleSequence.bind(this)}
       />
     )
 
