@@ -215,7 +215,7 @@ class ScheduleController extends Component {
                         endIcon={<ArrowForwardIosIcon/>}
                         size="small"
                         style={{margin: '5px'}}
-                        onClick={() => { scheduleSequence(this.state.selectedSequence, `${this.state.selectedTime}`) }}
+                        onClick={() => { scheduleSequence(this.state.selectedSequence, `${this.state.selectedTime}:00`) }}
                       >
                         schedule recurring sequence
                       </Button>
