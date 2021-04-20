@@ -1,12 +1,13 @@
 import React, { Component } 					from 'react'
-import { Typography, Slider, Button, Icon } from '@material-ui/core'
+import { Typography, Slider, Button, IconButton } from '@material-ui/core'
 import { TableContainer, Table, TableBody, TableRow, TableCell } from '@material-ui/core'
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
 import { TextField }                  from '@material-ui/core'
 import { Paper }                      from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import ExpandMoreIcon                 from '@material-ui/icons/ExpandMore';
+import ArrowForwardIosIcon            from '@material-ui/icons/ArrowForwardIos';
+import DeleteIcon                     from '@material-ui/icons/Delete';
 import _                              from 'lodash'
 import { v4 as uuid }                 from 'uuid'
 
@@ -63,7 +64,7 @@ class SequenceController extends Component {
     const {
       availableSequences,
       activeSequences,
-      onButtonClick
+      toggleSequenceClick
     } = this.props
 
     return (
@@ -81,7 +82,7 @@ class SequenceController extends Component {
             const variant = isActive ? 'outlined' : 'text'
 
             return (
-              <Button className="controls-button" variant={variant} color="default" size="small" onClick={() => onButtonClick(sanitizedName, sequenceId, !isActive)}>
+              <Button className="controls-button" variant={variant} color="default" size="small" onClick={() => toggleSequenceClick(sanitizedName, sequenceId, !isActive)}>
                 {sequenceConfig.name}
               </Button>
             )
@@ -121,7 +122,8 @@ class ScheduleController extends Component {
     const {
       scheduledSequences,
       availableSequences,
-      scheduleSequence
+      scheduleSequence,
+      unscheduleSequence
     } = this.props
 
     const sortedScheduledSequences = _.chain(scheduledSequences)
@@ -161,6 +163,11 @@ class ScheduleController extends Component {
                       <TableCell>
                         {sequence_config.name}
                       </TableCell>
+                      <TableCell>
+                        <IconButton aria-label="delete" onClick={() => { unscheduleSequence(job.job_id) }}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   )
                 })
@@ -172,58 +179,52 @@ class ScheduleController extends Component {
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             add sequence
           </AccordionSummary>
-          <AccordionDetails>
-            <Table size="small">
-              <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                      <FormControl>
-                        <InputLabel id="demo-simple-select-label">sequence</InputLabel>
-                        <Select
-                          value={selectedSequence}
-                          onChange={(event) => { this.setState({ selectedSequence: event.target.value }) }}
-                        >
-                          {
-                            _.map(availableSequences, (sequence_info, sequence) => {
-                              return (
-                                <MenuItem value={sequence}>{sequence}</MenuItem>
-                              )
-                            })
-                          }
-                        </Select>
-                      </FormControl>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div style={{display: 'flex', justifyContent: 'space-evenly'}}>
-                      <form noValidate>
-                        <TextField
-                          label="time"
-                          type="time"
-                          defaultValue={selectedTime}
-                          InputLabelProps={{ shrink: true }}
-                          inputProps={{
-                            step: 300, // 5 min
-                          }}
-                          onChange={(event) => this.setState({ selectedTime: event.target.value })}
-                        />
-                      </form>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={<ArrowForwardIosIcon/>}
-                        size="small"
-                        style={{margin: '5px'}}
-                        onClick={() => { scheduleSequence(this.state.selectedSequence, `${this.state.selectedTime}:00`) }}
-                      >
-                        schedule recurring sequence
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+          <AccordionDetails style={{display: 'block'}}>
+            <div className="schedule-block">
+              <FormControl>
+                <InputLabel id="demo-simple-select-label">sequence</InputLabel>
+                <Select
+                  value={selectedSequence}
+                  onChange={(event) => { this.setState({ selectedSequence: event.target.value }) }}
+                >
+                  {
+                    _.map(availableSequences, (sequence_info, sequence) => {
+                      return (
+                        <MenuItem value={sequence}>{sequence}</MenuItem>
+                      )
+                    })
+                  }
+                </Select>
+              </FormControl>
+            </div>
+            <div className="schedule-block">
+              <div className="schedule-block">
+                <form noValidate>
+                  <TextField
+                    label="time"
+                    type="time"
+                    defaultValue={selectedTime}
+                    InputLabelProps={{ shrink: true }}
+                    inputProps={{
+                      step: 300, // 5 min
+                    }}
+                    onChange={(event) => this.setState({ selectedTime: event.target.value })}
+                  />
+                </form>
+              </div>
+              <div className="schedule-block">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  endIcon={<ArrowForwardIosIcon/>}
+                  size="small"
+                  style={{margin: '5px'}}
+                  onClick={() => { scheduleSequence(this.state.selectedSequence, this.state.selectedTime.split(':')[0], this.state.selectedTime.split(':')[1], '00') }}
+                >
+                  schedule recurring
+                </Button>
+              </div>
+            </div>
           </AccordionDetails>
         </Accordion>
       </div>
@@ -288,12 +289,26 @@ class StripController extends Component {
     else this.stopSequence(sequenceId)
   }
 
-  scheduleSequence(selectedSequence, selectedTime) {
-    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/scheduleSequence?outputs=${this.outputName}&sequence=${selectedSequence}&trigger_time=${selectedTime}`
+  scheduleSequence(selectedSequence, selectedHours, selectedMins, selectedSeconds) {
+    const scheduled_time = new Date()
+    scheduled_time.setHours(parseInt(selectedHours))
+    scheduled_time.setMinutes(parseInt(selectedMins))
+    scheduled_time.setSeconds(parseInt(selectedSeconds))
+    const utc_time_str = `${String(scheduled_time.getUTCHours()).padStart(2, '0')}:${String(scheduled_time.getUTCMinutes()).padStart(2, '0')}:${String(scheduled_time.getUTCSeconds()).padStart(2, '0')}`
+
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/scheduleSequence?outputs=${this.outputName}&sequence=${selectedSequence}&trigger_time=${utc_time_str}`
     const cmd_id = this.getCmdID()
     misc.makeRequest(full_url)
       .then(response => this.handleCmdResponse(response, cmd_id))
-      .catch(error => console.error(`error in scheduleSequence: ${JSON.stringify({ outputName: this.outputName, selectedSequence, selectedTime, error: String(error) })}`))
+      .catch(error => console.error(`error in scheduleSequence: ${JSON.stringify({ outputName: this.outputName, selectedSequence, selectedHours, selectedMins, selectedSeconds, utc_time_str, error: String(error) })}`))
+  }
+
+  unscheduleSequence(sequenceId) {
+    const full_url = `http://${CONFIG.server.host}:${CONFIG.server.port}/control/unscheduleSequence?job_id=${sequenceId}`
+    const cmd_id = this.getCmdID()
+    misc.makeRequest(full_url)
+      .then(response => this.handleCmdResponse(response, cmd_id))
+      .catch(error => console.error(`error in unscheduleSequence: ${JSON.stringify({ sequenceId, error: String(error) })}`))
   }
 
   render() {
@@ -305,7 +320,7 @@ class StripController extends Component {
       <SequenceController 
         availableSequences={outputStatus.availableSequences} 
         activeSequences={outputStatus.activeSequences}
-        onButtonClick={this.toggleSequence.bind(this)}
+        toggleSequenceClick={this.toggleSequence.bind(this)}
       />
     )
 
@@ -328,6 +343,7 @@ class StripController extends Component {
         scheduledSequences={outputStatus.scheduledSequences}
         availableSequences={outputStatus.availableSequences}
         scheduleSequence={this.scheduleSequence.bind(this)}
+        unscheduleSequence={this.unscheduleSequence.bind(this)}
       />
     )
 
