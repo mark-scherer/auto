@@ -190,7 +190,7 @@ class ScheduleController extends Component {
                   {
                     _.map(availableSequences, (sequence_info, sequence) => {
                       return (
-                        <MenuItem value={sequence}>{sequence}</MenuItem>
+                        <MenuItem value={sequence}>{sequence_info.name}</MenuItem>
                       )
                     })
                   }
